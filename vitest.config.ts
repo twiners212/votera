@@ -1,6 +1,15 @@
 import { defineConfig } from "vitest/config";
 import path from "node:path";
 
+// Muat environment variables dari .env.local untuk pengujian integrasi database
+if (typeof (process as unknown as { loadEnvFile?: (path?: string) => void }).loadEnvFile === "function") {
+  try {
+    (process as unknown as { loadEnvFile: (path?: string) => void }).loadEnvFile(".env.local");
+  } catch {
+    // Abaikan jika file tidak ada
+  }
+}
+
 export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
