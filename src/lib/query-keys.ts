@@ -6,6 +6,9 @@ export const queryKeys = {
     settings: (electionId: string) => [...queryKeys.election.all, "settings", electionId] as const,
     readiness: (electionId: string) => [...queryKeys.election.all, "readiness", electionId] as const,
   },
+  settings: {
+    all: ["settings"] as const,
+  },
   candidates: {
     all: ["candidates"] as const,
     list: (electionId: string) => [...queryKeys.candidates.all, "list", electionId] as const,
@@ -33,6 +36,9 @@ export const queryKeys = {
     grades: (electionId: string) => [...queryKeys.master.all, "grades", electionId] as const,
     majors: (electionId: string) => [...queryKeys.master.all, "majors", electionId] as const,
     groups: (electionId: string) => [...queryKeys.master.all, "groups", electionId] as const,
+  },
+  adminUsers: {
+    all: ["admin", "users"] as const,
   },
   admin: {
     users: () => ["admin", "users"] as const,
