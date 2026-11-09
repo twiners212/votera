@@ -15,10 +15,14 @@ import {
   ChevronRight,
   Shield,
   Download,
+  FileSpreadsheet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { generateOfficialBeritaAcaraPdf } from "@/lib/reports/export-pdf";
+import { generateOfficialElectionExcel } from "@/lib/reports/export-excel";
 
 interface CandidateResult {
   id: string;
@@ -121,6 +125,50 @@ export default function AdminResultsPage() {
     }, 600);
   };
 
+  // Export handlers
+  const handleExportPdf = () => {
+    if (!resultsData) return;
+    try {
+      toast.info("Menyusun Berita Acara resmi PDF...");
+      const pdf = generateOfficialBeritaAcaraPdf({
+        election: resultsData.election,
+        kpis: resultsData.kpis,
+        candidates: resultsData.candidates,
+        classTurnout: resultsData.classTurnout,
+        committeeName: "Panitia Pemilihan OSIS 2026",
+      });
+      pdf.save(`Berita_Acara_${resultsData.election.slug}_${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("Berita Acara PDF berhasil diunduh");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal mengunduh PDF");
+    }
+  };
+
+  const handleExportExcel = () => {
+    if (!resultsData) return;
+    try {
+      toast.info("Menyiapkan berkas Excel...");
+      const bytes = generateOfficialElectionExcel({
+        election: resultsData.election,
+        kpis: resultsData.kpis,
+        candidates: resultsData.candidates,
+        classTurnout: resultsData.classTurnout,
+      });
+      const blob = new Blob([bytes], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Rekapitulasi_${resultsData.election.slug}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Berkas Excel berhasil diunduh");
+    } catch (err: any) {
+      toast.error(err.message || "Gagal mengunduh Excel");
+    }
+  };
+
   // Format tanggal jadwal
   const formatSchedule = (start: string | null, end: string | null) => {
     if (!start || !end) return "Jadwal belum ditentukan";
@@ -195,30 +243,41 @@ export default function AdminResultsPage() {
             dan tidak ditampilkan ke pemilih.
           </p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Button
             onClick={handleManualRefresh}
             variant="outline"
             size="sm"
-            className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs h-9 px-3.5"
+            className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs h-9 px-3 text-xs"
             disabled={isFetching}
           >
             <RotateCw
               className={cn(
-                "w-4 h-4 mr-2 text-slate-500",
+                "w-3.5 h-3.5 mr-1.5 text-slate-500",
                 (isRefreshingAnim || isFetching) && "animate-spin"
               )}
             />
             <span>Segarkan</span>
           </Button>
 
-          <a
-            href="#laporan"
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-[#D6362C] hover:bg-[#B0251E] text-white shadow-xs transition-colors h-9"
+          <Button
+            onClick={handleExportExcel}
+            variant="outline"
+            size="sm"
+            className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs h-9 px-3 text-xs font-semibold"
           >
-            <FileText className="w-4 h-4" />
-            <span>Lihat laporan</span>
-          </a>
+            <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+            <span>Ekspor Excel</span>
+          </Button>
+
+          <Button
+            onClick={handleExportPdf}
+            size="sm"
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-[#D6362C] hover:bg-[#B0251E] text-white shadow-xs transition-colors h-9"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Berita Acara PDF</span>
+          </Button>
         </div>
       </div>
 
