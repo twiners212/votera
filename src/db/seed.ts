@@ -9,6 +9,14 @@ import {
   encryptVoterToken,
 } from "../lib/crypto/token";
 
+try {
+  if (typeof (process as unknown as { loadEnvFile?: (path: string) => void }).loadEnvFile === "function") {
+    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(".env.local");
+  }
+} catch {
+  // Ignore if .env.local doesn't exist
+}
+
 neonConfig.webSocketConstructor = ws;
 
 async function seed() {
@@ -115,9 +123,9 @@ async function seed() {
     // 3. SEED MASTER DATA: TINGKAT & JURUSAN
     // =========================================================
     console.log("Seeding data Tingkat Kelas dan Jurusan...");
-    const gradeXId = "g1000000-0000-0000-0000-000000000001";
-    const gradeXIId = "g1000000-0000-0000-0000-000000000002";
-    const gradeXIIId = "g1000000-0000-0000-0000-000000000003";
+    const gradeXId = "a1000000-0000-0000-0000-000000000001";
+    const gradeXIId = "a1000000-0000-0000-0000-000000000002";
+    const gradeXIIId = "a1000000-0000-0000-0000-000000000003";
 
     await db
       .insert(schema.gradeLevels)
@@ -128,8 +136,8 @@ async function seed() {
       ])
       .onConflictDoNothing();
 
-    const majorIPAId = "m1000000-0000-0000-0000-000000000001";
-    const majorIPSId = "m1000000-0000-0000-0000-000000000002";
+    const majorIPAId = "b1000000-0000-0000-0000-000000000001";
+    const majorIPSId = "b1000000-0000-0000-0000-000000000002";
 
     await db
       .insert(schema.majors)
@@ -144,13 +152,13 @@ async function seed() {
     // =========================================================
     console.log("Seeding data Rombel 1 s/d 7...");
     const rombelIds = [
-      "r1000000-0000-0000-0000-000000000001",
-      "r1000000-0000-0000-0000-000000000002",
-      "r1000000-0000-0000-0000-000000000003",
-      "r1000000-0000-0000-0000-000000000004",
-      "r1000000-0000-0000-0000-000000000005",
-      "r1000000-0000-0000-0000-000000000006",
-      "r1000000-0000-0000-0000-000000000007",
+      "d1000000-0000-0000-0000-000000000001",
+      "d1000000-0000-0000-0000-000000000002",
+      "d1000000-0000-0000-0000-000000000003",
+      "d1000000-0000-0000-0000-000000000004",
+      "d1000000-0000-0000-0000-000000000005",
+      "d1000000-0000-0000-0000-000000000006",
+      "d1000000-0000-0000-0000-000000000007",
     ];
 
     const rombelData = rombelIds.map((id, index) => ({
@@ -327,7 +335,6 @@ async function seed() {
       const rawToken = generateVoterToken(8);
       const tokenHash = hashVoterToken(rawToken);
       const isVoted = sv.status === "voted";
-      // Jika sudah memilih, tokenEncrypted di-redact sesuai aturan keamanan
       const tokenEncrypted = isVoted ? "[REDACTED]" : encryptVoterToken(rawToken);
 
       votersToInsert.push({

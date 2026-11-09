@@ -3,6 +3,14 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { migrate } from "drizzle-orm/neon-serverless/migrator";
 import ws from "ws";
 
+try {
+  if (typeof (process as unknown as { loadEnvFile?: (path: string) => void }).loadEnvFile === "function") {
+    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(".env.local");
+  }
+} catch {
+  // Ignore if .env.local doesn't exist
+}
+
 neonConfig.webSocketConstructor = ws;
 
 async function runMigration() {
@@ -11,7 +19,7 @@ async function runMigration() {
     throw new Error("DIRECT_DATABASE_URL atau DATABASE_URL wajib disetel untuk menjalankan migrasi.");
   }
 
-  console.log("Menjalankan migrasi database ke Neon PostgreSQL...");
+  console.log("Menjalankan migrasi database ke Neon PostgreSQL (Database: votera)...");
   const pool = new Pool({ connectionString });
   const db = drizzle(pool);
 
