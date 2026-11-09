@@ -304,9 +304,9 @@ async function seed() {
     // =========================================================
     console.log("Seeding data contoh pemilih DPT...");
     const sampleVoterNames = [
-      { nis: "2324001", name: "Aditya Pratama", rombelIdx: 0, status: "not_voted" as const },
-      { nis: "2324002", name: "Ahmad Fauzi", rombelIdx: 0, status: "not_voted" as const },
-      { nis: "2324003", name: "Dewi Sartika", rombelIdx: 0, status: "not_voted" as const },
+      { nis: "2324001", name: "Aditya Pratama", rombelIdx: 0, status: "not_voted" as const, token: "JUFT88TF" },
+      { nis: "2324002", name: "Ahmad Fauzi", rombelIdx: 0, status: "not_voted" as const, token: "WPMTTE6G" },
+      { nis: "2324003", name: "Dewi Sartika", rombelIdx: 0, status: "not_voted" as const, token: "HHZU7B48" },
       { nis: "2324004", name: "Putri Ayu Lestari", rombelIdx: 1, status: "voted" as const, votedCand: candidate1Id },
       { nis: "2324005", name: "Budi Santoso", rombelIdx: 1, status: "voted" as const, votedCand: candidate1Id },
       { nis: "2324006", name: "Citra Lestari", rombelIdx: 1, status: "not_voted" as const },
@@ -314,7 +314,7 @@ async function seed() {
       { nis: "2324008", name: "Eka Rahmawati", rombelIdx: 2, status: "not_voted" as const },
       { nis: "2324009", name: "Fajar Nugraha", rombelIdx: 2, status: "voted" as const, votedCand: candidate3Id },
       { nis: "2324010", name: "Gita Permata", rombelIdx: 2, status: "not_voted" as const },
-      { nis: "2324011", name: "Anisa Rahmawati", rombelIdx: 3, status: "logged_in" as const },
+      { nis: "2324011", name: "Anisa Rahmawati", rombelIdx: 3, status: "not_voted" as const, token: "P8TYM5KR" },
       { nis: "2324012", name: "Hendra Wijaya", rombelIdx: 3, status: "voted" as const, votedCand: candidate4Id },
       { nis: "2324013", name: "Indah Kusumawati", rombelIdx: 3, status: "not_voted" as const },
       { nis: "2324014", name: "Joko Supriyanto", rombelIdx: 4, status: "not_voted" as const },
@@ -332,7 +332,7 @@ async function seed() {
     const votesToInsert = [];
 
     for (const sv of sampleVoterNames) {
-      const rawToken = generateVoterToken(8);
+      const rawToken = (sv as any).token || generateVoterToken(8);
       const tokenHash = hashVoterToken(rawToken);
       const isVoted = sv.status === "voted";
       const tokenEncrypted = isVoted ? "[REDACTED]" : encryptVoterToken(rawToken);

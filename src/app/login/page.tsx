@@ -78,10 +78,13 @@ export default function VoterLoginPage() {
     }
   };
 
-  const fillQuickAccount = (nis: string, tkn: string) => {
+  const fillQuickAccount = (nis: string, tkn: string, name: string) => {
     setVoterIdentity(nis);
     setToken(tkn);
     setErrorMessage(null);
+    toast.info("Akun demo dipilih", {
+      description: `${name} (${nis}) siap masuk ke bilik suara.`,
+    });
   };
 
   return (
@@ -239,7 +242,7 @@ export default function VoterLoginPage() {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
-                  onClick={() => fillQuickAccount("2324001", "JUFT88TF")}
+                  onClick={() => fillQuickAccount("2324001", "JUFT88TF", "Aditya Pratama")}
                   className="p-2 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-100 text-left transition-colors"
                 >
                   <p className="font-semibold text-slate-800 text-[11px] truncate">Aditya Pratama</p>
@@ -247,7 +250,7 @@ export default function VoterLoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => fillQuickAccount("2324011", "P8TYM5KR")}
+                  onClick={() => fillQuickAccount("2324011", "P8TYM5KR", "Anisa Rahmawati")}
                   className="p-2 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-100 text-left transition-colors"
                 >
                   <p className="font-semibold text-slate-800 text-[11px] truncate">Anisa Rahmawati</p>
