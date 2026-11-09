@@ -15,6 +15,7 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     exclude: [".agents/**", "node_modules/**", ".next/**"],
     globals: true,
+    fileParallelism: false,
   },
   resolve: {
     alias: {
