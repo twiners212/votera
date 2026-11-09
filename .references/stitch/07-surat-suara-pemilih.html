@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Surat Suara â€” PILKETOS 2026 SMA Bojong Gede</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              primary: '#D6362C',
+              hover: '#B0251E',
+              dark: '#931D17',
+              surface: '#FDFBFB',
+              border: '#E2E8F0',
+            }
+          },
+          boxShadow: {
+            'card-selected': '0 0 0 1px #D6362C, 0 10px 25px -5px rgba(214, 54, 44, 0.12)',
+            'sticky-bar': '0 -4px 16px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-elements">
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F8FAFC;
+    }
+    .flag-banner-bg {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.7) 100%);
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col antialiased selection:bg-red-100 selection:text-red-700">
+<!-- BEGIN: NavigationBar -->
+<header class="sticky top-0 z-30 w-full bg-white border-b border-slate-200 shadow-sm" data-purpose="main-navbar">
+<div class="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center justify-between">
+<!-- Brand Logo & School Info -->
+<div class="flex items-center gap-3.5" data-purpose="brand-identity">
+<div class="w-10 h-10 rounded-full border border-amber-300 bg-amber-50 p-1 flex items-center justify-center shadow-sm">
+<svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24">
+<circle cx="12" cy="12" fill="#FEF08A" r="10" stroke="#CA8A04" stroke-width="1.5"></circle>
+<path d="M12 6v12M8 10l4-4 4 4M9 18l3-3 3 3" stroke="#B45309" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="leading-tight">
+<h1 class="text-base font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5">
+            PILKETOS <span class="text-[#D6362C]">2026</span>
+</h1>
+<p class="text-xs font-medium text-slate-500">SMA Bojong Gede</p>
+</div>
+</div>
+<!-- Center & Right Action Badges -->
+<div class="flex items-center gap-4" data-purpose="user-status-bar">
+<!-- Live Voting Status Pill -->
+<div class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#ECFDF5] border border-[#A7F3D0] text-[#047857]">
+<span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
+          Pemungutan suara dibuka
+        </div>
+<!-- Student Profile Identity -->
+<div class="flex items-center gap-2.5 pl-2" data-purpose="voter-profile">
+<div class="w-9 h-9 rounded-full bg-[#FCE8E6] text-[#D6362C] flex items-center justify-center font-bold text-sm border border-red-100 shadow-sm">
+            P
+          </div>
+<div class="hidden md:block text-left text-xs leading-snug">
+<p class="font-bold text-slate-800">Putri Ayu Lestari</p>
+<p class="text-slate-500 font-medium">Rombel 2</p>
+</div>
+</div>
+<!-- Logout Action Button -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors duration-150 active:scale-95" type="button">
+<svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Keluar</span>
+</button>
+</div>
+</div>
+</header>
+<!-- END: NavigationBar -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 pb-32">
+<!-- Hero / Headline Header Section with Decorative Flag Backdrop -->
+<section class="relative w-full overflow-hidden border-b border-slate-200 bg-white" data-purpose="hero-ballot-header">
+<!-- Decorative Backdrop Graphic mimicking Indonesian Flag & Ballot Box -->
+<div aria-hidden="true" class="absolute inset-0 pointer-events-none select-none overflow-hidden">
+<!-- Floating Red Waving Banner Graphic -->
+<div class="absolute right-[-80px] -top-14 w-[580px] lg:w-[740px] h-[360px] opacity-90 rotate-[-4deg]">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 800 400">
+<path d="M0,120 C180,60 380,180 560,90 C680,30 760,60 800,80 L800,240 C750,260 620,290 480,240 C320,180 180,260 0,220 Z" fill="#D6362C"></path>
+<path d="M0,220 C180,260 320,180 480,240 C620,290 750,260 800,240 L800,380 C740,360 620,380 480,350 C320,310 180,380 0,340 Z" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"></path>
+</svg>
+</div>
+<!-- Ballot Box Graphic Preview Silhouette -->
+<div class="absolute right-28 bottom-2 hidden lg:flex flex-col items-center opacity-85">
+<div class="w-28 h-36 bg-white border border-slate-300 rounded shadow-md flex flex-col items-center pt-3 rotate-6">
+<div class="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center text-[10px] text-white font-bold">â˜…</div>
+<div class="w-10 h-0.5 bg-slate-300 mt-2"></div>
+<div class="w-8 h-0.5 bg-slate-200 mt-1"></div>
+</div>
+<div class="w-40 h-16 bg-slate-100 border border-slate-300 rounded-t-lg shadow -mt-6 flex justify-center pt-1.5">
+<div class="w-14 h-1.5 bg-slate-800 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Content Container -->
+<div class="relative max-w-[1440px] mx-auto px-6 py-10 lg:py-12 z-10">
+<div class="max-w-xl">
+<span class="inline-block text-xs font-extrabold uppercase tracking-widest text-[#D6362C] mb-2.5">
+            SURAT SUARA
+          </span>
+<h2 class="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            Pilih Satu <br/>
+<span class="text-[#D6362C]">Calon Ketua</span>
+</h2>
+<p class="mt-4 text-sm md:text-base text-slate-600 leading-relaxed font-normal">
+            Ketuk kartu kandidat pilihan kamu. Setelah suara dikirim, pilihan <span class="font-bold text-slate-800">tidak bisa diubah</span>.
+          </p>
+</div>
+</div>
+</section>
+<!-- BEGIN: CandidatesListSection -->
+<section class="max-w-[1440px] mx-auto px-6 mt-8" data-purpose="candidate-selection-cards">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card #1 (SELECTED) -->
+<article class="candidate-card selected group relative bg-white rounded-2xl border-2 border-[#D6362C] shadow-card-selected overflow-hidden transition-all duration-200 cursor-pointer flex flex-col" data-purpose="candidate-card">
+<!-- Card Header / Photo Canvas -->
+<div class="relative aspect-[4/4.5] bg-gradient-to-tr from-rose-50 via-slate-50 to-red-50 flex items-center justify-center overflow-hidden border-b border-red-100">
+<!-- Candidate Number Badge -->
+<div class="absolute top-3.5 left-3.5 z-10">
+<span class="inline-flex items-center justify-center w-7 h-7 bg-[#D6362C] text-white text-xs font-black rounded-lg shadow-sm">
+                #1
+              </span>
+</div>
+<!-- Radio Selection Indicator (Active) -->
+<div class="absolute top-3.5 right-3.5 z-10">
+<div class="w-7 h-7 rounded-full bg-[#D6362C] flex items-center justify-center shadow-md">
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+</div>
+<!-- Decorative Indonesian Flag Splash Pattern Inside Portrait Frame -->
+<div class="absolute -right-10 bottom-0 w-36 h-28 opacity-30 pointer-events-none">
+<div class="w-full h-1/2 bg-[#D6362C] -skew-y-12"></div>
+<div class="w-full h-1/2 bg-white border-t border-red-200 -skew-y-12"></div>
+</div>
+<!-- Candidate Portrait Image -->
+<img alt="Raka Aditya Pratama" class="w-full h-full object-cover object-top pt-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiVxH7prhwbucP-9fb9a2hdAvrj03TJ1NLAnwQgGB7zjj6ONMSKvDgiezHUX4Zbr9cy-naIuvhje6MJVCbnknlEkQ9W7xtKs30ACcT9cFhMb12UJ5osbzs9ZCLLMsZ7G7Rg41OYp5bc79IgYvGAni4-008YM9I3FtDqYqmsA_FvJmhXHRZfcbzXMWP__gYkc-Hdv74YhFtUVulRlFMDA5xi-bmZgdwyQfqPS6woiM"/>
+</div>
+<!-- Card Details / Description -->
+<div class="p-4 flex-1 flex flex-col justify-between bg-white">
+<div>
+<h3 class="font-bold text-base text-slate-900 tracking-tight leading-snug">
+                Raka Aditya Pratama
+              </h3>
+<p class="mt-1 text-xs text-slate-500 leading-normal line-clamp-2">
+                Bersama Bergerak, Bersama Bersinar
+              </p>
+</div>
+</div>
+</article>
+<!-- Card #2 -->
+<article class="candidate-card group relative bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-md overflow-hidden transition-all duration-200 cursor-pointer flex flex-col" data-purpose="candidate-card">
+<!-- Card Header / Photo Canvas -->
+<div class="relative aspect-[4/4.5] bg-gradient-to-tr from-slate-100 via-slate-50 to-slate-100 flex items-center justify-center overflow-hidden border-b border-slate-100">
+<!-- Candidate Number Badge -->
+<div class="absolute top-3.5 left-3.5 z-10">
+<span class="inline-flex items-center justify-center w-7 h-7 bg-[#D6362C] text-white text-xs font-black rounded-lg shadow-sm">
+                #2
+              </span>
+</div>
+<!-- Radio Selection Indicator (Unchecked) -->
+<div class="absolute top-3.5 right-3.5 z-10">
+<div class="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border-2 border-slate-300 shadow-sm group-hover:border-slate-400 transition-colors"></div>
+</div>
+<!-- Candidate Portrait Image -->
+<img alt="Alya Putri Maharani" class="w-full h-full object-cover object-top pt-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjKfVwvZ8raQnXqxkrrUtoCNYJ1rvHGaZhOdcPstBumZk7PamGK4o4VgC7AoAo_VXqeSrQshpxgzgu6fhzrPCa6Slta8sezQI0I2Qo8W44_0ZxLTWrMo38mrHohdV-rUtDOQzUQDTlvIdf01bM-0YNCEiqUuu1j02eTaxxeNgxvSWJPL6vcHxPyo60YPxeEHTlyLuWEdvT7eKsHUavx-Jx7tzs04kmwDURiGJ5XJM"/>
+</div>
+<!-- Card Details / Description -->
+<div class="p-4 flex-1 flex flex-col justify-between bg-white">
+<div>
+<h3 class="font-bold text-base text-slate-900 tracking-tight leading-snug">
+                Alya Putri Maharani
+              </h3>
+<p class="mt-1 text-xs text-slate-500 leading-normal line-clamp-2">
+                Suara Kita, Aksi Nyata
+              </p>
+</div>
+</div>
+</article>
+<!-- Card #3 -->
+<article class="candidate-card group relative bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-md overflow-hidden transition-all duration-200 cursor-pointer flex flex-col" data-purpose="candidate-card">
+<!-- Card Header / Photo Canvas -->
+<div class="relative aspect-[4/4.5] bg-gradient-to-tr from-slate-100 via-slate-50 to-slate-100 flex items-center justify-center overflow-hidden border-b border-slate-100">
+<!-- Candidate Number Badge -->
+<div class="absolute top-3.5 left-3.5 z-10">
+<span class="inline-flex items-center justify-center w-7 h-7 bg-[#D6362C] text-white text-xs font-black rounded-lg shadow-sm">
+                #3
+              </span>
+</div>
+<!-- Radio Selection Indicator (Unchecked) -->
+<div class="absolute top-3.5 right-3.5 z-10">
+<div class="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border-2 border-slate-300 shadow-sm group-hover:border-slate-400 transition-colors"></div>
+</div>
+<!-- Candidate Portrait Image -->
+<img alt="Dimas Bagaskara" class="w-full h-full object-cover object-top pt-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKc7ozBHOyWzJxoAr8qgmSSiMoSHwZRK-bxGacTdAGBPOoIZpj-RufKUvBkSHbmWV8nFLAll47-K7MjPbKp3rWuijckJeCT6poxa_PW__O_1Qd53kCBppEZGLECFo5UoQ77Xw_PLwcskM5x4QDw2GEqbmqvkonDu1S5O0B3kqP2k6YWxXKIKq_2ORTfrwSNyjX3FoEHi5MWZy3FniI3mOOVfIb9vz_wmc9tszLWjg"/>
+</div>
+<!-- Card Details / Description -->
+<div class="p-4 flex-1 flex flex-col justify-between bg-white">
+<div>
+<h3 class="font-bold text-base text-slate-900 tracking-tight leading-snug">
+                Dimas Bagaskara
+              </h3>
+<p class="mt-1 text-xs text-slate-500 leading-normal line-clamp-2">
+                Kreatif, Peduli, Berprestasi
+              </p>
+</div>
+</div>
+</article>
+<!-- Card #4 -->
+<article class="candidate-card group relative bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-md overflow-hidden transition-all duration-200 cursor-pointer flex flex-col" data-purpose="candidate-card">
+<!-- Card Header / Photo Canvas -->
+<div class="relative aspect-[4/4.5] bg-gradient-to-tr from-slate-100 via-slate-50 to-slate-100 flex items-center justify-center overflow-hidden border-b border-slate-100">
+<!-- Candidate Number Badge -->
+<div class="absolute top-3.5 left-3.5 z-10">
+<span class="inline-flex items-center justify-center w-7 h-7 bg-[#D6362C] text-white text-xs font-black rounded-lg shadow-sm">
+                #4
+              </span>
+</div>
+<!-- Radio Selection Indicator (Unchecked) -->
+<div class="absolute top-3.5 right-3.5 z-10">
+<div class="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm border-2 border-slate-300 shadow-sm group-hover:border-slate-400 transition-colors"></div>
+</div>
+<!-- Candidate Portrait Image -->
+<img alt="Nadia Safira Rahman" class="w-full h-full object-cover object-top pt-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbFDHjty8Wqw5GYpAuL9aJWXFQvji0E0JmOLL-sXLrhrhnpmo0aD6QblXIGl7bQAG0mpKNcYFNoHnH1Sa4i6DfUJbS61sz83MNLCIiniG59w2wPr9PjG6VNqJKyoLWVfz-ZXKWqVfJoAQwGnP5etOPsCdTEweN7MPyJMHXLrkSC_v4rIKvwa1rLEcS28wInZWii0mWkw4mDOE2fwWz2qADaOhK55gaRklwPMF9Kgk"/>
+</div>
+<!-- Card Details / Description -->
+<div class="p-4 flex-1 flex flex-col justify-between bg-white">
+<div>
+<h3 class="font-bold text-base text-slate-900 tracking-tight leading-snug">
+                Nadia Safira Rahman
+              </h3>
+<p class="mt-1 text-xs text-slate-500 leading-normal line-clamp-2">
+                Satu Langkah, Seribu Karya
+              </p>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- END: CandidatesListSection -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: StickyConfirmationBar -->
+<aside class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-sticky-bar z-40 py-3.5" data-purpose="confirmation-bottom-bar">
+<div class="max-w-[1440px] mx-auto px-6 flex items-center justify-between">
+<!-- Status Choice Indicator -->
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-slate-600">Dipilih:</span>
+<span class="text-sm font-bold text-slate-900 tracking-tight">No. 1 â€” Raka Aditya Pratama</span>
+</div>
+<!-- Action Confirmation Button -->
+<button class="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-[#C8322B] hover:bg-[#B0251E] active:scale-[0.98] text-white font-bold text-sm shadow-md shadow-red-500/20 transition duration-150 ease-in-out cursor-pointer" data-purpose="submit-vote-btn" type="button">
+        Kirim suara
+      </button>
+</div>
+</aside>
+<!-- END: StickyConfirmationBar -->
+</body></html>

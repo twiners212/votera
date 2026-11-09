@@ -1,0 +1,747 @@
+﻿<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PILKETOS 2026 - Panel Panitia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "candidate-4": "#7E22CE",
+          "on-primary-fixed": "#410001",
+          "tertiary": "#1d5b9e",
+          "background": "#faf9f7",
+          "primary-fixed-dim": "#ffb4aa",
+          "tertiary-container": "#3d74b9",
+          "text-secondary": "#64748B",
+          "danger-bg": "#FEF2F2",
+          "on-tertiary-container": "#f9f9ff",
+          "surface-container-lowest": "#ffffff",
+          "primary-700": "#B0251E",
+          "text-primary": "#0F172A",
+          "on-secondary-fixed": "#002117",
+          "surface-container-high": "#e9e8e6",
+          "border-strong": "#CBD5E1",
+          "on-secondary": "#ffffff",
+          "surface-container": "#efeeec",
+          "candidate-3": "#1D5B9E",
+          "surface": "#FFFFFF",
+          "on-primary-container": "#fff9f8",
+          "secondary": "#1a6a55",
+          "success-bg": "#ECFDF5",
+          "surface-dim": "#dadad8",
+          "surface-bright": "#faf9f7",
+          "on-surface-variant": "#5b403d",
+          "accent-gold": "#FDE047",
+          "on-tertiary-fixed-variant": "#004785",
+          "on-tertiary": "#ffffff",
+          "primary-200": "#FECACA",
+          "error-container": "#ffdad6",
+          "on-tertiary-fixed": "#001c3a",
+          "tertiary-fixed": "#d4e3ff",
+          "surface-muted": "#F8FAFC",
+          "subtle-bg": "#FDF8F6",
+          "on-surface": "#1a1c1b",
+          "on-error": "#ffffff",
+          "primary-50": "#FEF2F2",
+          "error": "#ba1a1a",
+          "tertiary-fixed-dim": "#a5c8ff",
+          "success-text": "#047857",
+          "on-error-container": "#93000a",
+          "primary-500": "#D6362C",
+          "surface-tint": "#b81f1a",
+          "inverse-surface": "#2f3130",
+          "primary-100": "#FCE8E6",
+          "warning-text": "#B45309",
+          "outline": "#8f706b",
+          "primary": "#b21a16",
+          "candidate-1": "#B9382C",
+          "danger-text": "#DC2626",
+          "surface-variant": "#e3e2e0",
+          "on-background": "#1a1c1b",
+          "inverse-on-surface": "#f1f1ef",
+          "canvas-bg": "#FAF9F7",
+          "inverse-primary": "#ffb4aa",
+          "primary-container": "#d6362c",
+          "candidate-2": "#1F6E58",
+          "secondary-fixed": "#a6f2d6",
+          "on-secondary-container": "#22715a",
+          "surface-container-highest": "#e3e2e0",
+          "on-primary": "#ffffff",
+          "on-primary-fixed-variant": "#930006",
+          "surface-container-low": "#f4f3f1",
+          "warning-bg": "#FEF3C7",
+          "primary-fixed": "#ffdad5",
+          "outline-variant": "#e4beb9",
+          "text-muted": "#94A3B8",
+          "secondary-container": "#a6f2d6",
+          "primary-600": "#C8322B",
+          "border-default": "#E2E8F0",
+          "border-subtle": "#F1F5F9",
+          "on-secondary-fixed-variant": "#00513e",
+          "secondary-fixed-dim": "#8ad5ba"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "margin-desktop": "2rem",
+          "gutter": "1rem",
+          "space-md": "0.75rem",
+          "space-lg": "1rem",
+          "margin": "1rem",
+          "gutter-desktop": "1.5rem",
+          "space-xl": "1.5rem"
+        },
+        "fontFamily": {
+          "label-lg": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "headline-lg-mobile": ["Plus Jakarta Sans"],
+          "display-lg-mobile": ["Plus Jakarta Sans"],
+          "display-lg": ["Plus Jakarta Sans"],
+          "headline-md": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "title-md": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "headline-sm": ["Plus Jakarta Sans"],
+          "headline-lg": ["Plus Jakarta Sans"],
+          "code-mono": ["JetBrains Mono"]
+        },
+        "fontSize": {
+          "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+          "display-lg-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "800"}],
+          "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+          "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+          "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+          "title-md": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+          "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+          "code-mono": ["13px", {"lineHeight": "18px", "fontWeight": "500"}]
+        }
+      }
+    }
+  }
+  </script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style data-purpose="base-styling">
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+    @layer base {
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #FAF9F7;
+        color: #0F172A;
+        -webkit-font-smoothing: antialiased;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #FAF9F7;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 9999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94A3B8;
+      }
+    }
+  </style>
+<meta content="web_dashboard" name="shell-type"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head>
+<body class="bg-canvas-bg text-text-primary antialiased selection:bg-primary-100 selection:text-primary-700 min-h-screen">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-[240px] flex-shrink-0 bg-surface border-r border-border-default min-h-screen flex flex-col justify-between fixed top-0 left-0 bottom-0 z-30" data-purpose="sidebar">
+<div class="flex flex-col h-full">
+<!-- Brand & School Logo Header -->
+<div class="h-16 flex items-center px-5 border-b border-border-default flex-shrink-0">
+<div class="w-8 h-8 rounded-full border border-amber-300 bg-amber-50 flex items-center justify-center mr-3 shadow-xs">
+<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+</div>
+<div class="leading-tight">
+<div class="font-extrabold text-[13px] tracking-tight text-text-primary">
+            PILKETOS <span class="text-primary-600">2026</span>
+</div>
+<div class="text-[11px] font-medium text-text-muted">Panel Panitia</div>
+</div>
+</div>
+<!-- Navigation Menus -->
+<nav class="px-3 py-4 space-y-6 text-[13px] flex-1 overflow-y-auto" data-active-classes="bg-primary-100 text-primary-600 font-semibold shadow-xs" data-purpose="sidebar-navigation">
+<!-- Group: UTAMA -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-text-muted uppercase">Utama</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="admin-dashboard" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="layout-grid"></i>
+<span>Dashboard</span>
+</a>
+</div>
+<!-- Group: PEMILIHAN -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-text-muted uppercase">Pemilihan</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="candidate-management" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="user"></i>
+<span>Kandidat</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="voter-management" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="users"></i>
+<span>Pemilih (DPT)</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="election-results-reports" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="bar-chart-2"></i>
+<span>Hasil &amp; Laporan</span>
+</a>
+</div>
+</div>
+<!-- Group: DATA MASTER -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-text-muted uppercase">Data Master</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="class-levels" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="layers"></i>
+<span>Tingkat Kelas</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="majors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="book-open"></i>
+<span>Jurusan</span>
+</a>
+</div>
+</div>
+<!-- Group: SISTEM -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-text-muted uppercase">Sistem</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="system-settings" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="sliders-horizontal"></i>
+<span>Pengaturan</span>
+</a>
+<a aria-current="page" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors bg-primary-100 text-primary-600 font-semibold shadow-xs" data-path="activity-logs" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="clock"></i>
+<span>Log Aktivitas</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-text-secondary hover:bg-slate-50 hover:text-text-primary transition-colors" data-path="admin-management" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="shield-check"></i>
+<span>Kelola Admin</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Bottom Sidebar (Keluar) -->
+<div class="p-3 border-t border-border-default flex-shrink-0">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-text-secondary hover:text-primary-600 hover:bg-primary-50 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="log-out"></i>
+<span>Keluar</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentWrapper -->
+<div class="ml-[240px] flex flex-col min-h-screen">
+<!-- BEGIN: TopbarHeader -->
+<header class="h-16 bg-surface border-b border-border-default px-8 flex items-center justify-between sticky top-0 z-20" data-purpose="topbar-header">
+<div>
+<h2 class="text-title-md font-bold text-text-primary">Panel Administrasi</h2>
+</div>
+<!-- Super Admin Profile Area -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-100 text-primary-600 font-bold text-xs flex items-center justify-center border border-primary-200">
+          S
+        </div>
+<div class="text-right leading-tight">
+<div class="text-xs font-semibold text-text-primary">Super Admin</div>
+<div class="text-[11px] text-text-muted">Super Admin</div>
+</div>
+</div>
+</header>
+<!-- END: TopbarHeader -->
+<!-- BEGIN: DashboardBody -->
+<main class="flex-1 bg-canvas-bg p-8 space-y-6 pt-6" data-purpose="dashboard-canvas">
+<div class="flex flex-col w-full space-y-6">
+<!-- Top Intro Section -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-700 text-label-md font-label-md">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse"></span>
+        Audit Trail Aktif
+      </span>
+<span class="text-body-sm font-body-sm text-text-muted">Integritas Hash SHA-256 Terverifikasi</span>
+</div>
+<p class="text-body-md font-body-md text-text-secondary max-w-4xl">
+      Riwayat aktivitas panitia, pemilih, dan sistem. Data ini hanya untuk dibaca dan tidak bisa diubah dari panel guna menjaga validitas transparansi pemilu.
+    </p>
+</div>
+<!-- KPI Metrics Bar -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+<!-- Metric 1: Total Catatan -->
+<div class="bg-surface rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-label-md text-text-secondary uppercase tracking-wider">Total Catatan</span>
+<div class="w-9 h-9 rounded-xl bg-surface-muted flex items-center justify-center text-text-secondary">
+<span class="material-symbols-outlined text-[20px]">dataset</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-display-lg font-display-lg text-text-primary tracking-tight">21</span>
+<span class="text-body-sm font-body-sm text-success-text flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +100%
+        </span>
+</div>
+<div class="mt-2 text-body-sm font-body-sm text-text-muted">Total entri tersimpan di ledger</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 to-primary-700 opacity-80"></div>
+</div>
+<!-- Metric 2: Aktivitas Panitia -->
+<div class="bg-surface rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-label-md text-text-secondary uppercase tracking-wider">Aktivitas Panitia</span>
+<div class="w-9 h-9 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600">
+<span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-display-lg font-display-lg text-text-primary tracking-tight">10</span>
+<span class="text-body-sm font-body-sm text-text-muted">47.6% porsi</span>
+</div>
+<div class="mt-2 text-body-sm font-body-sm text-text-muted">Tindakan operasional staf</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candidate-1 to-primary-500 opacity-80"></div>
+</div>
+<!-- Metric 3: Login Pemilih Berhasil -->
+<div class="bg-surface rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-label-md text-text-secondary uppercase tracking-wider">Login Pemilih Berhasil</span>
+<div class="w-9 h-9 rounded-xl bg-success-bg flex items-center justify-center text-success-text">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-display-lg font-display-lg text-text-primary tracking-tight">4</span>
+<span class="text-body-sm font-body-sm text-success-text font-label-md">Sesi Valid</span>
+</div>
+<div class="mt-2 text-body-sm font-body-sm text-text-muted">Otentikasi token siswa sah</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-candidate-2 to-secondary opacity-80"></div>
+</div>
+<!-- Metric 4: Login Gagal -->
+<div class="bg-surface rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="text-body-sm font-label-md text-text-secondary uppercase tracking-wider">Login Gagal</span>
+<div class="w-9 h-9 rounded-xl bg-danger-bg flex items-center justify-center text-danger-text">
+<span class="material-symbols-outlined text-[20px]">gpp_bad</span>
+</div>
+</div>
+<div class="mt-4 flex items-baseline gap-2">
+<span class="text-display-lg font-display-lg text-danger-text tracking-tight">2</span>
+<span class="text-body-sm font-body-sm text-warning-text font-label-md">Perlu Pantau</span>
+</div>
+<div class="mt-2 text-body-sm font-body-sm text-text-muted">Percobaan token invalid/salah</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-error to-danger-text opacity-80"></div>
+</div>
+</div>
+<!-- Filter Control Card -->
+<div class="bg-surface rounded-2xl p-6 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-text-secondary text-[20px]">filter_alt</span>
+<span class="text-label-lg font-label-lg text-text-primary">Filter Audit Log</span>
+</div>
+<button class="text-body-sm font-body-sm text-text-muted hover:text-primary-600 transition-colors" id="resetFilterBtn" type="button">
+        Reset Filter
+      </button>
+</div>
+<form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end" id="filterForm">
+<!-- Search -->
+<div class="lg:col-span-2">
+<label class="block text-label-md font-label-md text-text-secondary mb-1.5">Cari</label>
+<div class="relative">
+<input class="w-full h-11 px-3.5 pr-10 text-body-md font-body-md bg-surface-muted rounded-xl focus:bg-surface focus:outline-none transition-colors" id="searchInput" placeholder="Keterangan, nama, NIS, atau IP" type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-text-muted pointer-events-none">search</span>
+</div>
+</div>
+<!-- Pelaku -->
+<div>
+<label class="block text-label-md font-label-md text-text-secondary mb-1.5">Pelaku</label>
+<select class="w-full h-11 px-3 text-body-md font-body-md bg-surface-muted rounded-xl focus:bg-surface focus:outline-none transition-colors" id="actorFilter">
+<option value="Semua">Semua</option>
+<option value="Panitia">Panitia</option>
+<option value="Pemilih">Pemilih</option>
+<option value="Sistem">Sistem</option>
+</select>
+</div>
+<!-- Aksi -->
+<div>
+<label class="block text-label-md font-label-md text-text-secondary mb-1.5">Aksi</label>
+<select class="w-full h-11 px-3 text-body-md font-body-md bg-surface-muted rounded-xl focus:bg-surface focus:outline-none transition-colors" id="actionFilter">
+<option value="Semua">Semua</option>
+<option value="admin_login">Admin Login</option>
+<option value="voter_login">Voter Login</option>
+<option value="vote_cast">Vote Cast</option>
+<option value="voter_logout">Voter Logout</option>
+</select>
+</div>
+<!-- Dari Tanggal -->
+<div>
+<label class="block text-label-md font-label-md text-text-secondary mb-1.5">Dari tanggal</label>
+<div class="relative">
+<input class="w-full h-11 px-3 text-body-md font-body-md bg-surface-muted rounded-xl focus:bg-surface focus:outline-none transition-colors" id="dateFrom" type="date"/>
+</div>
+</div>
+<!-- Sampai Tanggal + Tombol Cari -->
+<div class="flex items-center gap-3">
+<div class="flex-1">
+<label class="block text-label-md font-label-md text-text-secondary mb-1.5">Sampai tanggal</label>
+<input class="w-full h-11 px-3 text-body-md font-body-md bg-surface-muted rounded-xl focus:bg-surface focus:outline-none transition-colors" id="dateTo" type="date"/>
+</div>
+<button class="h-11 px-6 rounded-xl bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-on-primary font-label-lg text-label-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 flex-shrink-0 self-end" type="submit">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span>Cari</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Read-Only Audit Table Card -->
+<div class="bg-surface rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header Toolbar -->
+<div class="p-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface">
+<div class="flex items-center gap-3">
+<div class="w-2.5 h-6 bg-primary-500 rounded-full"></div>
+<div>
+<h3 class="text-title-md font-title-md text-text-primary">Catatan aktivitas</h3>
+<p class="text-body-sm font-body-sm text-text-muted">Ledger mutlak (Append-Only) terindeks waktu</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-3 py-1 rounded-full bg-surface-muted text-body-sm font-body-sm text-text-secondary">
+          Menampilkan <span class="font-label-lg text-text-primary" id="rowCount">6</span> dari 21
+        </div>
+<span class="inline-flex items-center gap-1 text-label-md font-label-md text-text-muted px-2.5 py-1 rounded-md bg-surface-muted">
+<span class="material-symbols-outlined text-[16px]">lock</span> Read-Only
+        </span>
+</div>
+</div>
+<!-- Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left text-body-md font-body-md">
+<thead>
+<tr class="bg-subtle-bg text-text-secondary text-[11px] font-bold uppercase tracking-wider">
+<th class="py-3.5 px-6 font-label-md">WAKTU</th>
+<th class="py-3.5 px-6 font-label-md">PELAKU</th>
+<th class="py-3.5 px-6 font-label-md">AKSI</th>
+<th class="py-3.5 px-6 font-label-md">KETERANGAN</th>
+<th class="py-3.5 px-6 font-label-md text-right">IP ADDRESS</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-text-primary" id="logTableBody">
+<!-- Row 1: Admin Login -->
+<tr class="hover:bg-canvas-bg transition-colors">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">20:20:27 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Super Admin</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-primary-600">Panitia</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">@admin</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-primary">Admin login</span>
+<span class="text-body-sm font-code-mono text-text-muted">admin_login</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-500"></span>
+<span class="text-body-md font-body-md text-text-primary">Login panitia: admin</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+<!-- Row 2: Voter Logout -->
+<tr class="hover:bg-canvas-bg transition-colors bg-surface">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">20:19:55 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Putri Ayu Lestari</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700">Pemilih</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">NIS 2324004</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-primary">Voter logout</span>
+<span class="text-body-sm font-code-mono text-text-muted">voter_logout</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-text-muted"></span>
+<span class="text-body-md font-body-md text-text-secondary">Logout pemilih</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+<!-- Row 3: Vote Cast -->
+<tr class="hover:bg-canvas-bg transition-colors bg-surface">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">20:19:36 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Putri Ayu Lestari</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700">Pemilih</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">NIS 2324004</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-secondary">Vote cast</span>
+<span class="text-body-sm font-code-mono text-text-muted">vote_cast</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-candidate-2"></span>
+<span class="text-body-md font-label-md text-text-primary">Pemilih telah memberikan suara</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+<!-- Row 4: Voter Login -->
+<tr class="hover:bg-canvas-bg transition-colors bg-surface">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">20:16:36 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Putri Ayu Lestari</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700">Pemilih</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">NIS 2324004</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-primary">Pemilih login</span>
+<span class="text-body-sm font-code-mono text-text-muted">voter_login</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-success-text"></span>
+<span class="text-body-md font-body-md text-text-primary">Login pemilih</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+<!-- Row 5: Vote Cast Aditya -->
+<tr class="hover:bg-canvas-bg transition-colors bg-surface">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">14:24:05 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Aditya Pratama</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700">Pemilih</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">NIS 2324001</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-secondary">Vote cast</span>
+<span class="text-body-sm font-code-mono text-text-muted">vote_cast</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-candidate-2"></span>
+<span class="text-body-md font-label-md text-text-primary">Pemilih telah memberikan suara</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+<!-- Row 6: Voter Login Aditya -->
+<tr class="hover:bg-canvas-bg transition-colors bg-surface">
+<td class="py-4 px-6 whitespace-nowrap align-top">
+<div class="flex flex-col">
+<span class="font-code-mono text-code-mono text-text-primary">25/10/2026</span>
+<span class="font-code-mono text-body-sm text-text-muted">14:12:03 WIB</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-text-primary">Aditya Pratama</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700">Pemilih</span>
+</div>
+<span class="text-body-sm font-code-mono text-text-muted">NIS 2324001</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-primary">Pemilih login</span>
+<span class="text-body-sm font-code-mono text-text-muted">voter_login</span>
+</div>
+</td>
+<td class="py-4 px-6 align-top">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-success-text"></span>
+<span class="text-body-md font-body-md text-text-primary">Login pemilih</span>
+</div>
+</td>
+<td class="py-4 px-6 whitespace-nowrap align-top text-right">
+<span class="inline-block px-2.5 py-1 rounded bg-surface-muted text-text-secondary font-code-mono text-body-sm">
+                ::1
+              </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="p-4 px-6 bg-surface flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2 text-body-sm font-body-sm text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-success-text">verified</span>
+<span>Semua data terenkripsi dan ditandatangani secara kriptografis</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3.5 py-1.5 rounded-lg bg-surface-muted text-text-muted text-body-sm font-label-md cursor-not-allowed" disabled="" type="button">
+          Sebelumnya
+        </button>
+<span class="px-3 py-1 text-body-sm font-label-md bg-primary-50 text-primary-600 rounded-lg">1</span>
+<button class="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-surface-muted text-text-secondary text-body-sm font-label-md transition-colors" type="button">
+          Berikutnya
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const filterForm = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    const actorFilter = document.getElementById('actorFilter');
+    const actionFilter = document.getElementById('actionFilter');
+    const tableBody = document.getElementById('logTableBody');
+    const rowCount = document.getElementById('rowCount');
+    const resetBtn = document.getElementById('resetFilterBtn');
+
+    if (filterForm && tableBody) {
+      function applyFilter(e) {
+        if (e) e.preventDefault();
+        const term = (searchInput.value || '').toLowerCase().trim();
+        const actor = actorFilter.value;
+        const action = actionFilter.value;
+        const rows = tableBody.querySelectorAll('tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+          const text = row.innerText.toLowerCase();
+          const matchTerm = !term || text.includes(term);
+          const matchActor = actor === 'Semua' || text.includes(actor.toLowerCase());
+          const matchAction = action === 'Semua' || text.includes(action.toLowerCase());
+
+          if (matchTerm && matchActor && matchAction) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (rowCount) {
+          rowCount.textContent = visibleCount;
+        }
+      }
+
+      filterForm.addEventListener('submit', applyFilter);
+      searchInput.addEventListener('input', applyFilter);
+      actorFilter.addEventListener('change', applyFilter);
+      actionFilter.addEventListener('change', applyFilter);
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          actorFilter.value = 'Semua';
+          actionFilter.value = 'Semua';
+          const dateFrom = document.getElementById('dateFrom');
+          const dateTo = document.getElementById('dateTo');
+          if (dateFrom) dateFrom.value = '';
+          if (dateTo) dateTo.value = '';
+          applyFilter();
+        });
+      }
+    }
+  })();
+</script>
+</main>
+<!-- END: DashboardBody -->
+</div>
+<!-- END: MainContentWrapper -->
+<script data-purpose="icon-initialization">
+    lucide.createIcons();
+  </script>
+</body></html>

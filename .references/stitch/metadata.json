@@ -1,0 +1,108 @@
+{
+  "stitchProject": {
+    "title": "Pilketos E-Voting Portal",
+    "projectId": "7125252990353900767",
+    "exportedAt": "2026-11-09T15:18:00+07:00"
+  },
+  "screens": [
+    {
+      "order": 1,
+      "id": "898bcbf6391745f092b79a1ad2239e60",
+      "title": "Log Aktivitas — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2448 },
+      "htmlFile": "01-log-aktivitas.html",
+      "screenshotFile": "screenshots/01-log-aktivitas.png"
+    },
+    {
+      "order": 2,
+      "id": "92ee2b7a874b417485dcf4ac66394188",
+      "title": "Hasil Pemilihan — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2048 },
+      "htmlFile": "02-hasil-pemilihan.html",
+      "screenshotFile": "screenshots/02-hasil-pemilihan.png"
+    },
+    {
+      "order": 3,
+      "id": "d8c0b078467c498e95f974c3bcb358e0",
+      "title": "Suara Tercatat — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2048 },
+      "htmlFile": "03-suara-tercatat.html",
+      "screenshotFile": "screenshots/03-suara-tercatat.png"
+    },
+    {
+      "order": 4,
+      "id": "cdce594cee5a42c5902e576cfc36d0b0",
+      "title": "Manajemen Pemilih DPT — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2334 },
+      "htmlFile": "04-manajemen-pemilih-dpt.html",
+      "screenshotFile": "screenshots/04-manajemen-pemilih-dpt.png"
+    },
+    {
+      "order": 5,
+      "id": "777503762232434c890988b7e4463756",
+      "title": "Detail Kandidat — PILKETOS 2026",
+      "deviceType": "MOBILE",
+      "dimensions": { "width": 780, "height": 2212 },
+      "htmlFile": "05-detail-kandidat.html",
+      "screenshotFile": "screenshots/05-detail-kandidat.png"
+    },
+    {
+      "order": 6,
+      "id": "d634d557110b446b81bf6fc738e99ee8",
+      "title": "Masuk Pemilih — PILKETOS 2026",
+      "deviceType": "MOBILE",
+      "dimensions": { "width": 780, "height": 1768 },
+      "htmlFile": "06-masuk-pemilih.html",
+      "screenshotFile": "screenshots/06-masuk-pemilih.png"
+    },
+    {
+      "order": 7,
+      "id": "2acef0f8b93f40c6a013e4093c541e70",
+      "title": "Surat Suara Pemilih — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2048 },
+      "htmlFile": "07-surat-suara-pemilih.html",
+      "screenshotFile": "screenshots/07-surat-suara-pemilih.png"
+    },
+    {
+      "order": 8,
+      "id": "631196dd5984478fa79b51117bc094d0",
+      "title": "Admin Dashboard — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2048 },
+      "htmlFile": "08-admin-dashboard.html",
+      "screenshotFile": "screenshots/08-admin-dashboard.png"
+    },
+    {
+      "order": 9,
+      "id": "f7ccf9065e0142bf89b65218690cbd39",
+      "title": "Manajemen Kandidat — PILKETOS 2026",
+      "deviceType": "DESKTOP",
+      "dimensions": { "width": 2560, "height": 2048 },
+      "htmlFile": "09-manajemen-kandidat.html",
+      "screenshotFile": "screenshots/09-manajemen-kandidat.png"
+    },
+    {
+      "order": 10,
+      "id": "ca3e7b2d56ff47f09a86ea781c018779",
+      "title": "Daftar Kandidat — PILKETOS 2026",
+      "deviceType": "MOBILE",
+      "dimensions": { "width": 780, "height": 1842 },
+      "htmlFile": "10-daftar-kandidat.html",
+      "screenshotFile": "screenshots/10-daftar-kandidat.png"
+    },
+    {
+      "order": 11,
+      "id": "d3b1a06a1a2e4d22adf920e9317741b8",
+      "title": "Beranda — PILKETOS 2026",
+      "deviceType": "MOBILE",
+      "dimensions": { "width": 780, "height": 1768 },
+      "htmlFile": "bonus-beranda.html",
+      "screenshotFile": "screenshots/bonus-beranda.png"
+    }
+  ]
+}

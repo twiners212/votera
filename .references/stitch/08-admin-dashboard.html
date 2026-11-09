@@ -1,0 +1,404 @@
+﻿<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - PILKETOS 2026</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              primary: '#C8322B',
+              primaryHover: '#B02A24',
+              surfaceActive: '#FCE8E6',
+              bgMain: '#FAF9F7',
+              borderLight: '#E2E8F0',
+              textPrimary: '#1E293B',
+              textSecondary: '#64748B',
+              textMuted: '#94A3B8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Custom Typography & Layout Adjustments -->
+<style data-purpose="base-styling">
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF9F7;
+      color: #1E293B;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF9F7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex text-slate-800 antialiased selection:bg-rose-100 selection:text-red-700">
+<!-- BEGIN: LeftSidebar -->
+<aside class="w-[240px] flex-shrink-0 bg-white border-r border-[#E2E8F0] min-h-screen flex flex-col justify-between fixed top-0 left-0 bottom-0 z-30" data-purpose="sidebar">
+<div>
+<!-- Brand & School Logo Header -->
+<div class="h-16 flex items-center px-5 border-b border-[#E2E8F0]">
+<div class="w-8 h-8 rounded-full border border-amber-300 bg-amber-50 flex items-center justify-center mr-3 shadow-xs">
+<!-- Emblem logo placeholder / school shield icon -->
+<svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+</div>
+<div class="leading-tight">
+<div class="font-extrabold text-[13px] tracking-tight text-slate-900">
+            PILKETOS <span class="text-[#C8322B]">2026</span>
+</div>
+<div class="text-[11px] font-medium text-slate-400">Panel Panitia</div>
+</div>
+</div>
+<!-- Navigation Menus -->
+<nav class="px-3 py-4 space-y-6 text-[13px]">
+<!-- Group: UTAMA -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Utama</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-semibold bg-[#FCE8E6] text-[#C8322B] transition-colors shadow-xs" href="#">
+<i class="w-4 h-4" data-lucide="layout-grid"></i>
+<span>Dashboard</span>
+</a>
+</div>
+<!-- Group: PEMILIHAN -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Pemilihan</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="user"></i>
+<span>Kandidat</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="users"></i>
+<span>Pemilih (DPT)</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="bar-chart-2"></i>
+<span>Hasil &amp; Laporan</span>
+</a>
+</div>
+</div>
+<!-- Group: DATA MASTER -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Data Master</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="layers"></i>
+<span>Tingkat Kelas</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="book-open"></i>
+<span>Jurusan</span>
+</a>
+</div>
+</div>
+<!-- Group: SISTEM -->
+<div>
+<div class="px-3 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Sistem</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="sliders-horizontal"></i>
+<span>Pengaturan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="clock"></i>
+<span>Log Aktivitas</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="shield-check"></i>
+<span>Kelola Admin</span>
+</a>
+</div>
+</div>
+</nav>
+</div>
+<!-- Bottom Sidebar (Keluar) -->
+<div class="p-3 border-t border-[#E2E8F0]">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-slate-600 hover:text-[#C8322B] hover:bg-rose-50 transition-colors" href="#">
+<i class="w-4 h-4 text-slate-500" data-lucide="log-out"></i>
+<span>Keluar</span>
+</a>
+</div>
+</aside>
+<!-- END: LeftSidebar -->
+<!-- BEGIN: MainContentWrapper -->
+<div class="flex-1 ml-[240px] flex flex-col min-h-screen">
+<!-- BEGIN: TopbarHeader -->
+<header class="h-16 bg-white border-b border-[#E2E8F0] px-8 flex items-center justify-between sticky top-0 z-20" data-purpose="topbar-header">
+<!-- Title -->
+<div>
+<h2 class="text-[17px] font-bold text-slate-800">Dashboard</h2>
+</div>
+<!-- Super Admin Profile Area -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-[#FDECEB] text-[#C8322B] font-bold text-xs flex items-center justify-center border border-red-100">
+          S
+        </div>
+<div class="text-right leading-tight">
+<div class="text-xs font-semibold text-slate-800">Super Admin</div>
+<div class="text-[11px] text-slate-400">Super Admin</div>
+</div>
+</div>
+</header>
+<!-- END: TopbarHeader -->
+<!-- BEGIN: DashboardBody -->
+<main class="flex-1 bg-[#FAF9F7] p-8 space-y-6" data-purpose="dashboard-canvas">
+<!-- Greeting & Top Actions -->
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-4" data-purpose="greeting-actions">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 tracking-tight">Halo, Super Admin</h1>
+<p class="text-sm text-slate-500 mt-1">Ringkasan pemilihan Pemilihan Ketua OSIS 2026 secara langsung.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 text-xs font-semibold rounded-lg bg-white border border-rose-200 text-[#C8322B] hover:bg-rose-50 transition-colors shadow-2xs" type="button">
+            Lihat beranda
+          </button>
+<button class="px-4 py-2 text-xs font-semibold rounded-lg bg-[#C8322B] hover:bg-[#B02A24] text-white transition-colors shadow-xs" type="button">
+            Atur jadwal
+          </button>
+</div>
+</section>
+<!-- Status Pemungutan Suara Banner -->
+<section class="bg-white rounded-xl p-5 border border-slate-100 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4" data-purpose="voting-status-card">
+<div>
+<div class="text-sm font-semibold text-slate-800">Status pemungutan suara</div>
+<div class="text-xs text-slate-500 mt-0.5">25 Okt 2026, 07:00 â€“ 2 Nov 2026, 15:00</div>
+</div>
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Pemungutan suara dibuka
+          </span>
+</div>
+</section>
+<!-- 4 Metric Stat Cards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-purpose="metrics-grid">
+<!-- Metric 1: Kandidat Aktif -->
+<article class="bg-white rounded-xl p-5 border border-slate-100 shadow-xs flex flex-col justify-between">
+<div>
+<div class="w-7 h-7 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+<i class="w-4 h-4" data-lucide="user"></i>
+</div>
+<div class="text-[28px] font-extrabold text-slate-900 leading-none mb-1.5">4</div>
+<div class="text-xs font-medium text-slate-500">Kandidat aktif</div>
+</div>
+</article>
+<!-- Metric 2: Total Pemilih -->
+<article class="bg-white rounded-xl p-5 border border-slate-100 shadow-xs flex flex-col justify-between">
+<div>
+<div class="w-7 h-7 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center mb-4">
+<i class="w-4 h-4" data-lucide="users"></i>
+</div>
+<div class="text-[28px] font-extrabold text-slate-900 leading-none mb-1.5">76</div>
+<div class="text-xs font-medium text-slate-500">Total pemilih (DPT)</div>
+</div>
+</article>
+<!-- Metric 3: Sudah Memilih -->
+<article class="bg-white rounded-xl p-5 border border-slate-100 shadow-xs flex flex-col justify-between">
+<div>
+<div class="w-7 h-7 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4">
+<i class="w-4 h-4" data-lucide="check"></i>
+</div>
+<div class="text-[28px] font-extrabold text-slate-900 leading-none mb-1.5">2</div>
+<div class="text-xs font-medium text-slate-500">Sudah memilih</div>
+<div class="text-[11px] text-slate-400 mt-0.5">74 belum memilih</div>
+</div>
+</article>
+<!-- Metric 4: Partisipasi -->
+<article class="bg-white rounded-xl p-5 border border-slate-100 shadow-xs flex flex-col justify-between">
+<div>
+<div class="w-7 h-7 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mb-4">
+<i class="w-4 h-4" data-lucide="bar-chart"></i>
+</div>
+<div class="text-[28px] font-extrabold text-slate-900 leading-none mb-1.5">2,6%</div>
+<div class="text-xs font-medium text-slate-500">Partisipasi</div>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-slate-100 rounded-full h-1.5 mt-4 overflow-hidden">
+<div class="bg-emerald-500 h-1.5 rounded-full" style="width: 2.6%"></div>
+</div>
+</article>
+</section>
+<!-- Bento Grid (Partisipasi & Right Column) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6" data-purpose="bento-details-grid">
+<!-- Left Column: Partisipasi Per Kelas (65% -> 8 cols) -->
+<div class="lg:col-span-8 bg-white rounded-xl border border-slate-100 shadow-xs overflow-hidden">
+<!-- Card Header -->
+<div class="px-6 py-4 flex items-center justify-between border-b border-slate-50">
+<h3 class="text-sm font-bold text-slate-900">Partisipasi per kelas</h3>
+<a class="text-xs font-semibold text-[#C8322B] hover:underline" href="#">Kelola pemilih</a>
+</div>
+<!-- Table Content -->
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+<th class="py-2.5 px-6 font-semibold">Kelas</th>
+<th class="py-2.5 px-6 font-semibold text-center w-28">Memilih</th>
+<th class="py-2.5 px-6 font-semibold">Progres</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50 text-slate-600">
+<!-- Rombel 1 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 1</td>
+<td class="py-3 px-6 text-center text-slate-700">1 / 7</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 14.28%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 2 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 2</td>
+<td class="py-3 px-6 text-center text-slate-700">1 / 5</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 20%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 3 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 3</td>
+<td class="py-3 px-6 text-center text-slate-700">0 / 2</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 0%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 4 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 4</td>
+<td class="py-3 px-6 text-center text-slate-700">0 / 13</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 0%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 5 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 5</td>
+<td class="py-3 px-6 text-center text-slate-700">0 / 12</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 0%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 6 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 6</td>
+<td class="py-3 px-6 text-center text-slate-700">0 / 14</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 0%"></div>
+</div>
+</td>
+</tr>
+<!-- Rombel 7 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="py-3 px-6 font-medium text-slate-800">Rombel 7</td>
+<td class="py-3 px-6 text-center text-slate-700">0 / 13</td>
+<td class="py-3 px-6">
+<div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-[#C8322B] h-2 rounded-full" style="width: 0%"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Column: Kesiapan Pemilihan & Aktivitas Terbaru (35% -> 4 cols) -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Card 1: Kesiapan Pemilihan -->
+<div class="bg-white rounded-xl p-6 border border-slate-100 shadow-xs">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold text-slate-900">Kesiapan pemilihan</h3>
+<span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                Siap
+              </span>
+</div>
+<!-- Checklist Items -->
+<ul class="space-y-3.5 text-xs text-slate-600">
+<li class="flex items-center gap-3">
+<div class="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+<i class="w-3 h-3 stroke-[2.5]" data-lucide="check"></i>
+</div>
+<span>Minimal 2 kandidat aktif (sekarang 4)</span>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+<i class="w-3 h-3 stroke-[2.5]" data-lucide="check"></i>
+</div>
+<span>Daftar pemilih (DPT) sudah terisi (76 pemilih)</span>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+<i class="w-3 h-3 stroke-[2.5]" data-lucide="check"></i>
+</div>
+<span>Jadwal pemungutan suara sudah diatur</span>
+</li>
+<li class="flex items-center gap-3">
+<div class="w-4 h-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+<i class="w-3 h-3 stroke-[2.5]" data-lucide="check"></i>
+</div>
+<span>Nama sekolah sudah diisi</span>
+</li>
+</ul>
+</div>
+<!-- Card 2: Aktivitas Terbaru -->
+<div class="bg-white rounded-xl p-6 border border-slate-100 shadow-xs">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold text-slate-900">Aktivitas terbaru</h3>
+<a class="text-xs font-semibold text-[#C8322B] hover:underline" href="#">Semua log</a>
+</div>
+<!-- Event Item -->
+<div class="pt-1">
+<div class="text-xs font-semibold text-slate-800">Login panitia: admin</div>
+<div class="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+<span class="text-[#C8322B] font-medium">Panitia</span>
+<span>â€¢</span>
+<span>25 Okt, 20:20</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- END: DashboardBody -->
+</div>
+<!-- END: MainContentWrapper -->
+<!-- Icon initializer script -->
+<script data-purpose="icon-initialization">
+    lucide.createIcons();
+  </script>
+</body></html>

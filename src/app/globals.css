@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Mapping Token Utama ke shadcn/ui */
+    --background: 210 40% 98%;          /* #F8FAFC - --bg-canvas */
+    --foreground: 222 47% 11%;          /* #0F172A - --text-primary */
+
+    --card: 0 0% 100%;                  /* #FFFFFF - --bg-surface */
+    --card-foreground: 222 47% 11%;     /* #0F172A - --text-primary */
+
+    --popover: 0 0% 100%;               /* #FFFFFF */
+    --popover-foreground: 222 47% 11%;  /* #0F172A */
+
+    --primary: 5 70% 51%;               /* #D93829 - --color-primary (Crimson Red) */
+    --primary-foreground: 0 0% 100%;    /* #FFFFFF - --text-on-primary */
+
+    --secondary: 210 40% 96.1%;         /* #F1F5F9 - --bg-muted */
+    --secondary-foreground: 215 25% 27%;/* #334155 - --text-secondary */
+
+    --muted: 210 40% 96.1%;             /* #F1F5F9 - --bg-muted */
+    --muted-foreground: 215 16% 47%;    /* #64748B - --text-tertiary */
+
+    --accent: 7 100% 97%;               /* #FFF0EE - --color-primary-soft */
+    --accent-foreground: 5 70% 51%;     /* #D93829 - --color-primary */
+
+    --destructive: 0 72% 51%;           /* #DC2626 - --status-danger-text */
+    --destructive-foreground: 0 0% 100%;/* #FFFFFF */
+
+    --border: 214 32% 91%;              /* #E2E8F0 - --border-subtle */
+    --input: 213 27% 84%;               /* #CBD5E1 - --border-strong */
+    --ring: 5 70% 51%;                  /* #D93829 - Focus Ring Primary */
+
+    --radius: 0.75rem;                  /* 12px default card/input radius */
+
+    /* Custom Token Tambahan Votera */
+    --bg-warm-tint: #FFF5F3;
+    --primary-hover: #B8281B;
+    
+    /* Candidate Mission Pill Accent Colors */
+    --cand-red-border: #C84B31;
+    --cand-red-text: #A83820;
+    --cand-red-bg: #FFFBFB;
+
+    --cand-green-border: #2F6F5E;
+    --cand-green-text: #1F5748;
+    --cand-green-bg: #F7FCFA;
+
+    --cand-blue-border: #2E6F9E;
+    --cand-blue-text: #1D5680;
+    --cand-blue-bg: #F7FAFC;
+
+    --cand-amber-border: #B45309;
+    --cand-amber-text: #92400E;
+    --cand-amber-bg: #FFFBEB;
+
+    /* Semantic Status Pills */
+    --status-success-bg: #DCFCE7;
+    --status-success-text: #15803D;
+    --status-success-dot: #16A34A;
+
+    --status-warning-bg: #FEF3C7;
+    --status-warning-text: #B45309;
+    --status-warning-dot: #D97706;
+
+    --status-danger-bg: #FEE2E2;
+    --status-danger-text: #DC2626;
+  }
+
+  .dark {
+    --background: 222 47% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 0 72% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 20%;
+    --ring: 0 72% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Utilitas Angka Tabular Wajib untuk Perhitungan Suara, NIS, & Timer */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
