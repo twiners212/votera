@@ -1,21 +1,18 @@
-import * as React from "react";
+import type { ReactNode } from "react";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminTopbar } from "@/components/admin/admin-topbar";
 
 export default function AdminPanelLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex bg-[#FAF9F7] text-slate-800 antialiased">
-      {/* Desktop Fixed Left Sidebar (240px) */}
-      <AdminSidebar className="hidden lg:flex fixed top-0 left-0 bottom-0 z-30" />
-
-      {/* Main Content Area */}
-      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+      <AdminSidebar />
+      <div className="flex min-h-screen flex-col lg:pl-60">
         <AdminTopbar />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="mx-auto w-full max-w-[1440px] flex-1 p-4 sm:p-6 lg:p-7">
           {children}
         </main>
       </div>

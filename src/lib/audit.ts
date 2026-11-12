@@ -1,9 +1,13 @@
 import { db } from "@/db";
 import { auditLogs } from "@/db/schema";
 
+export type AuditActorType = "admin" | "voter" | "system";
+
+export type AuditDbExecutor = Pick<typeof db, "insert">;
+
 export interface InsertAuditLogParams {
   electionId: string;
-  actorType: "admin" | "voter" | "system";
+  actorType: AuditActorType;
   actorId?: string | null;
   actorName: string;
   actorIdentity: string;
@@ -11,44 +15,36 @@ export interface InsertAuditLogParams {
   actionTitle: string;
   description: string;
   ipAddress?: string;
+  tx?: AuditDbExecutor;
 }
 
-/**
- * Sanitasi deskripsi log untuk mencegah kebocoran informasi sensitif:
- * - Tidak boleh mencatat plaintext token
- * - Tidak boleh mencatat password
- * - Tidak boleh mencatat kandidat pilihan saat vote_cast
- */
-function sanitizeDescription(action: string, description: string): string {
-  if (action === "vote_cast") {
+const SENSITIVE_KEY_VALUE_PATTERN =
+  /\b([a-zA-Z0-9_]*(?:token|password|secret|candidate_?id)[a-zA-Z0-9_]*)(\s*[:=]\s*)("[^"]*"|'[^']*'|[^\s,;]+)/gi;
+
+export function sanitizeDescription(action: string, description: string): string {
+  if (action.trim().toLowerCase() === "vote_cast") {
     return "Pemilih telah memberikan suara";
   }
 
-  // Bersihkan pola token jika tidak sengaja tertulis (8 karakter kapital/angka)
-  const sanitized = description
-    .replace(/(?:token\s*[:=]\s*)([A-Z0-9]{8})/gi, "token: [REDACTED]")
-    .replace(/(?:password\s*[:=]\s*)(\S+)/gi, "password: [REDACTED]");
-
-  return sanitized;
+  return description.replace(
+    SENSITIVE_KEY_VALUE_PATTERN,
+    (_match, key: string, separator: string) => `${key}${separator}[REDACTED]`
+  );
 }
 
-export async function insertAuditLog(params: InsertAuditLogParams) {
-  try {
-    const cleanedDescription = sanitizeDescription(params.action, params.description);
+export async function insertAuditLog(params: InsertAuditLogParams): Promise<void> {
+  const executor = params.tx ?? db;
+  const safeDescription = sanitizeDescription(params.action, params.description);
 
-    await db.insert(auditLogs).values({
-      electionId: params.electionId,
-      actorType: params.actorType,
-      actorId: params.actorId || null,
-      actorName: params.actorName,
-      actorIdentity: params.actorIdentity,
-      action: params.action,
-      actionTitle: params.actionTitle,
-      description: cleanedDescription,
-      ipAddress: params.ipAddress || "::1",
-    });
-  } catch (error) {
-    // Audit log insertion error tidak boleh merusak alur aplikasi kecuali di mode test/audit ketat
-    console.error("Gagal mencatat audit log:", error);
-  }
+  await executor.insert(auditLogs).values({
+    electionId: params.electionId,
+    actorType: params.actorType,
+    actorId: params.actorId ?? null,
+    actorName: params.actorName,
+    actorIdentity: params.actorIdentity,
+    action: params.action,
+    actionTitle: params.actionTitle,
+    description: safeDescription,
+    ipAddress: params.ipAddress?.trim() || "::1",
+  });
 }

@@ -4,189 +4,207 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutGrid,
-  Award,
-  Users,
-  BarChart2,
-  Layers,
+  BarChart3,
   BookOpen,
-  SlidersHorizontal,
   Clock,
-  ShieldCheck,
-  LogOut,
-  ExternalLink,
-  Shield,
+  Layers,
+  LayoutGrid,
   Loader2,
+  LogOut,
+  ShieldCheck,
+  SlidersHorizontal,
+  User,
+  Users,
+  type LucideIcon,
 } from "lucide-react";
+import { BrandHeader } from "@/components/shared/brand-header";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth/admin-client";
-import { toast } from "sonner";
+import type { AdminRole } from "@/types/votera";
 
-interface AdminSidebarProps {
-  onNavClick?: () => void;
+export interface AdminNavItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  superAdminOnly?: boolean;
+}
+
+export interface AdminNavGroup {
+  title: string;
+  items: AdminNavItem[];
+}
+
+export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
+  {
+    title: "UTAMA",
+    items: [
+      {
+        label: "Dashboard",
+        href: "/admin/dashboard",
+        icon: LayoutGrid,
+      },
+    ],
+  },
+  {
+    title: "PEMILIHAN",
+    items: [
+      {
+        label: "Kandidat",
+        href: "/admin/candidates",
+        icon: User,
+      },
+      {
+        label: "Pemilih (DPT)",
+        href: "/admin/voters",
+        icon: Users,
+      },
+      {
+        label: "Hasil & Laporan",
+        href: "/admin/results",
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    title: "DATA MASTER",
+    items: [
+      {
+        label: "Tingkat Kelas",
+        href: "/admin/classes",
+        icon: Layers,
+        superAdminOnly: true,
+      },
+      {
+        label: "Jurusan",
+        href: "/admin/majors",
+        icon: BookOpen,
+        superAdminOnly: true,
+      },
+    ],
+  },
+  {
+    title: "SISTEM",
+    items: [
+      {
+        label: "Pengaturan",
+        href: "/admin/settings",
+        icon: SlidersHorizontal,
+        superAdminOnly: true,
+      },
+      {
+        label: "Log Aktivitas",
+        href: "/admin/logs",
+        icon: Clock,
+      },
+      {
+        label: "Kelola Admin",
+        href: "/admin/users",
+        icon: ShieldCheck,
+        superAdminOnly: true,
+      },
+    ],
+  },
+];
+
+export interface AdminSidebarProps {
+  shortName?: string;
+  logoUrl?: string | null;
+  role?: AdminRole;
+  onNavigate?: () => void;
+  onLogout?: () => void | Promise<void>;
   className?: string;
 }
 
-export function AdminSidebar({ onNavClick, className }: AdminSidebarProps) {
+export function AdminSidebarContent({
+  shortName = "PILKETOS 2026",
+  logoUrl,
+  role = "super_admin",
+  onNavigate,
+  onLogout,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
-  const isSuperAdmin = session?.user?.role === "super_admin";
+  const visibleGroups = React.useMemo(
+    () =>
+      ADMIN_NAV_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter(
+          (item) => !item.superAdminOnly || role === "super_admin"
+        ),
+      })).filter((group) => group.items.length > 0),
+    [role]
+  );
 
-  const navGroups = [
-    {
-      label: "Utama",
-      items: [
-        {
-          name: "Dashboard",
-          href: "/admin/dashboard",
-          icon: LayoutGrid,
-        },
-      ],
-    },
-    {
-      label: "Pemilihan",
-      items: [
-        {
-          name: "Kandidat",
-          href: "/admin/candidates",
-          icon: Award,
-        },
-        {
-          name: "Pemilih (DPT)",
-          href: "/admin/voters",
-          icon: Users,
-        },
-        {
-          name: "Hasil & Laporan",
-          href: "/admin/results",
-          icon: BarChart2,
-        },
-      ],
-    },
-    {
-      label: "Data Master",
-      items: [
-        {
-          name: "Tingkat & Rombel",
-          href: "/admin/classes",
-          icon: Layers,
-        },
-        {
-          name: "Jurusan",
-          href: "/admin/majors",
-          icon: BookOpen,
-        },
-      ],
-    },
-    {
-      label: "Sistem",
-      items: [
-        {
-          name: "Pengaturan",
-          href: "/admin/settings",
-          icon: SlidersHorizontal,
-        },
-        {
-          name: "Log Aktivitas",
-          href: "/admin/logs",
-          icon: Clock,
-        },
-        ...(isSuperAdmin
-          ? [
-              {
-                name: "Kelola Admin",
-                href: "/admin/users",
-                icon: ShieldCheck,
-              },
-            ]
-          : []),
-      ],
-    },
-  ];
-
-  const handleSignOut = async () => {
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      setIsLoggingOut(true);
-      await authClient.signOut();
-      toast.success("Berhasil Keluar", {
-        description: "Sesi administrator telah diakhiri.",
-      });
-      window.location.href = "/admin/login";
-    } catch {
-      toast.error("Gagal Keluar", {
-        description: "Terjadi kesalahan saat mengakhiri sesi.",
-      });
+      if (onLogout) {
+        await onLogout();
+      } else {
+        await fetch("/api/auth/sign-out", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }).catch(() => undefined);
+        router.push("/admin/login");
+        router.refresh();
+      }
+    } finally {
       setIsLoggingOut(false);
     }
-  };
+  }
 
   return (
-    <aside
-      className={cn(
-        "w-[240px] flex-shrink-0 bg-white border-r border-[#E2E8F0] min-h-screen flex flex-col justify-between select-none",
-        className
-      )}
-    >
-      <div>
-        {/* Brand & Emblem Logo Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-[#E2E8F0]">
-          <Link
+    <div className="flex h-full flex-col justify-between bg-white">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="flex h-16 shrink-0 items-center border-b border-[#E2E8F0] px-5">
+          <BrandHeader
+            shortName={shortName}
+            organizationName="Panel Panitia"
+            logoUrl={logoUrl}
             href="/admin/dashboard"
-            onClick={onNavClick}
-            className="flex items-center gap-3 group"
-          >
-            <div className="w-8 h-8 rounded-full border border-amber-300 bg-amber-50 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
-              <Shield className="w-4 h-4 text-amber-600" />
-            </div>
-            <div className="leading-tight">
-              <div className="font-extrabold text-[13px] tracking-tight text-slate-900">
-                PILKETOS <span className="text-[#C8322B]">2026</span>
-              </div>
-              <div className="text-[11px] font-medium text-slate-400">SMA Bojong Gede</div>
-            </div>
-          </Link>
-          <span className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-50 animate-pulse" title="Sistem Aktif" />
+            size="sm"
+          />
         </div>
 
-        {/* Navigation Groups */}
-        <nav className="px-3 py-4 space-y-5 text-[13px]">
-          {navGroups.map((group) => (
-            <div key={group.label}>
-              <div className="px-3 mb-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                {group.label}
+        <nav
+          aria-label="Navigasi Panel Panitia"
+          className="flex-1 space-y-5 overflow-y-auto px-3 py-4 text-[13px]"
+        >
+          {visibleGroups.map((group) => (
+            <div key={group.title}>
+              <div className="mb-2 px-3 text-[11px] font-bold uppercase tracking-[0.06em] text-[#94A3B8]">
+                {group.title}
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive =
-                    item.href === "/admin/dashboard"
-                      ? pathname === "/admin/dashboard"
-                      : pathname.startsWith(item.href);
+                    pathname === item.href ||
+                    pathname.startsWith(`${item.href}/`);
 
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={onNavClick}
+                      onClick={onNavigate}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg font-medium transition-colors",
+                        "flex h-10 items-center gap-2.5 rounded-[10px] px-3 transition-colors",
                         isActive
-                          ? "bg-[#FCE8E6] text-[#C8322B] font-semibold shadow-xs"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          ? "bg-[#FFF0EE] font-semibold text-[#D93829]"
+                          : "font-medium text-[#334155] hover:bg-[#F8FAFC] hover:text-[#0F172A]"
                       )}
                     >
                       <Icon
                         className={cn(
-                          "w-4 h-4 shrink-0 transition-colors",
-                          isActive ? "text-[#C8322B]" : "text-slate-500"
+                          "h-4 w-4 shrink-0",
+                          isActive ? "text-[#D93829]" : "text-[#64748B]"
                         )}
+                        aria-hidden="true"
                       />
-                      <span>{item.name}</span>
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   );
                 })}
@@ -196,51 +214,45 @@ export function AdminSidebar({ onNavClick, className }: AdminSidebarProps) {
         </nav>
       </div>
 
-      {/* Bottom Area: User Info & Logout */}
-      <div className="p-3 border-t border-[#E2E8F0] space-y-2">
-        {/* Portal Link */}
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
+      <div className="shrink-0 border-t border-[#E2E8F0] p-3">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex h-10 w-full items-center gap-2.5 rounded-[10px] px-3 text-[13px] font-medium text-[#334155] transition-colors hover:bg-[#FEF2F2] hover:text-[#D93829] disabled:opacity-50"
         >
-          <span className="flex items-center gap-2">
-            <ExternalLink className="w-3.5 h-3.5" />
-            Portal Pemilih
-          </span>
-          <span className="text-[10px] font-mono text-slate-400">Tab Baru ↗</span>
-        </Link>
-
-        {/* User Card */}
-        <div className="px-3 py-2 rounded-lg bg-slate-50/70 border border-slate-100 flex items-center justify-between">
-          <div className="min-w-0 pr-2">
-            <p className="text-xs font-semibold text-slate-800 truncate">
-              {session?.user?.name || "Admin Votera"}
-            </p>
-            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <span className="font-mono">@{session?.user?.username || "admin"}</span>
-              <span>•</span>
-              <span className="capitalize text-slate-600 font-medium">
-                {session?.user?.role === "super_admin" ? "Super Admin" : "Panitia"}
-              </span>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            disabled={isLoggingOut}
-            title="Keluar"
-            className="p-1.5 rounded-md text-slate-400 hover:text-[#C8322B] hover:bg-rose-50 transition-colors"
-          >
-            {isLoggingOut ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#C8322B]" />
-            ) : (
-              <LogOut className="w-4 h-4" />
-            )}
-          </button>
-        </div>
+          {isLoggingOut ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+          ) : (
+            <LogOut className="h-4 w-4 shrink-0 text-[#64748B]" />
+          )}
+          <span>Keluar</span>
+        </button>
       </div>
+    </div>
+  );
+}
+
+export function AdminSidebar({
+  shortName,
+  logoUrl,
+  role = "super_admin",
+  onLogout,
+  className,
+}: AdminSidebarProps) {
+  return (
+    <aside
+      className={cn(
+        "hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-60 lg:flex-col border-r border-[#E2E8F0] bg-white",
+        className
+      )}
+    >
+      <AdminSidebarContent
+        shortName={shortName}
+        logoUrl={logoUrl}
+        role={role}
+        onLogout={onLogout}
+      />
     </aside>
   );
 }

@@ -1,17 +1,23 @@
+import crypto from "node:crypto";
 import { Pool, neonConfig } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
 import { hashPassword } from "better-auth/crypto";
 import * as schema from "./schema";
 import {
-  generateVoterToken,
+  VOTER_TOKEN_ALPHABET,
   hashVoterToken,
   encryptVoterToken,
 } from "../lib/crypto/token";
 
 try {
-  if (typeof (process as unknown as { loadEnvFile?: (path: string) => void }).loadEnvFile === "function") {
-    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(".env.local");
+  if (
+    typeof (process as unknown as { loadEnvFile?: (path: string) => void })
+      .loadEnvFile === "function"
+  ) {
+    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(
+      ".env.local"
+    );
   }
 } catch {
   // Ignore if .env.local doesn't exist
@@ -19,13 +25,79 @@ try {
 
 neonConfig.webSocketConstructor = ws;
 
+function deterministicUuid(seedKey: string): string {
+  const hash = crypto.createHash("sha256").update(seedKey).digest("hex");
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
+function deterministicVoterToken(nis: string): string {
+  const digest = crypto.createHash("sha256").update(`votera-seed-${nis}`).digest();
+  let token = "";
+  for (let i = 0; i < 8; i++) {
+    token += VOTER_TOKEN_ALPHABET[digest[i] % VOTER_TOKEN_ALPHABET.length];
+  }
+  return token;
+}
+
+const DEMO_VOTERS: Array<{
+  nis: string;
+  name: string;
+  rombelIdx: number;
+  status: "not_voted" | "logged_in" | "voted";
+  token?: string;
+  votedCandidateNumber?: number;
+}> = [
+  { nis: "2324001", name: "Aditya Pratama", rombelIdx: 0, status: "not_voted", token: "JUFT88TF" },
+  { nis: "2324002", name: "Ahmad Fauzi", rombelIdx: 0, status: "not_voted", token: "WPMTTE6G" },
+  { nis: "2324003", name: "Dewi Sartika", rombelIdx: 0, status: "not_voted", token: "HHZU7B48" },
+  { nis: "2324004", name: "Putri Ayu Lestari", rombelIdx: 1, status: "voted", votedCandidateNumber: 1 },
+  { nis: "2324005", name: "Budi Santoso", rombelIdx: 1, status: "voted", votedCandidateNumber: 1 },
+  { nis: "2324006", name: "Citra Lestari", rombelIdx: 1, status: "not_voted" },
+  { nis: "2324007", name: "Doni Prasetyo", rombelIdx: 2, status: "not_voted" },
+  { nis: "2324008", name: "Eka Rahmawati", rombelIdx: 2, status: "not_voted" },
+  { nis: "2324009", name: "Fajar Nugraha", rombelIdx: 2, status: "not_voted" },
+  { nis: "2324010", name: "Gita Permata", rombelIdx: 2, status: "not_voted" },
+  { nis: "2324011", name: "Anisa Rahmawati", rombelIdx: 3, status: "not_voted", token: "P8TYM5KR" },
+  { nis: "2324012", name: "Hendra Wijaya", rombelIdx: 3, status: "not_voted" },
+  { nis: "2324013", name: "Indah Kusumawati", rombelIdx: 3, status: "not_voted" },
+  { nis: "2324014", name: "Joko Supriyanto", rombelIdx: 4, status: "not_voted" },
+  { nis: "2324015", name: "Kartika Sari", rombelIdx: 4, status: "not_voted" },
+  { nis: "2324016", name: "Lukman Hakim", rombelIdx: 4, status: "not_voted" },
+  { nis: "2324017", name: "Mega Utami", rombelIdx: 5, status: "not_voted" },
+  { nis: "2324018", name: "Naufal Ramadhan", rombelIdx: 5, status: "not_voted" },
+  { nis: "2324019", name: "Olivia Maharani", rombelIdx: 5, status: "not_voted" },
+  { nis: "2024001", name: "Deni Subekti", rombelIdx: 6, status: "not_voted" },
+  { nis: "2024002", name: "Rian Hidayat", rombelIdx: 6, status: "not_voted" },
+  { nis: "2024003", name: "Siti Nurhaliza", rombelIdx: 6, status: "not_voted" },
+];
+
+const EXTRA_STUDENT_NAMES = [
+  "Bagas Saputra", "Clarissa Putri", "Daffa Maulana", "Elsa Febriani",
+  "Farhan Rizky", "Ghea Ananda", "Hafiz Kurniawan", "Intan Permatasari",
+  "Jeremy Christian", "Keyla Azzahra", "Lutfi Ramadhan", "Mawar Melati",
+  "Nabilah Syifa", "Oscar Pratama", "Puspita Sari", "Qoriatus Sholehah",
+  "Rafi Akbar", "Salsaabila Nur", "Taufik Hidayat", "Umi Kulsum",
+  "Vino Sebastian", "Winda Astuti", "Xavier Wijaya", "Yasmine Putri",
+  "Zaki Mubarak", "Adinda Kinanti", "Bima Sena", "Cahya Ningrum",
+  "Danang Setiawan", "Erina Damayanti", "Fikri Alamsyah", "Galuh Chandra",
+  "Hana Mardiana", "Ilham Bintang", "Jihan Aulia", "Kevin Sanjaya",
+  "Larasati Dewi", "Miftahul Huda", "Nadia Putri", "Oki Setiana",
+  "Pandu Winata", "Qiana Azalea", "Reza Pahlevi", "Shinta Bela",
+  "Tegar Prakoso", "Ulfa Khoirunnisa", "Vania Larissa", "Wahyu Nugroho",
+  "Yogi Prasetya", "Zahra Maulida", "Arif Rahman", "Bella Anggraini",
+  "Candra Kirana", "Dina Amelia",
+];
+
 async function seed() {
-  const connectionString = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
+  const connectionString =
+    process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error("DIRECT_DATABASE_URL atau DATABASE_URL wajib disetel untuk seeding.");
+    throw new Error(
+      "DIRECT_DATABASE_URL atau DATABASE_URL wajib disetel untuk seeding."
+    );
   }
 
-  console.log("Memulai seeding data awal PILKETOS 2026 ke database...");
+  console.log("Memulai seeding idempotent PILKETOS 2026 ke database Neon...");
   const pool = new Pool({ connectionString });
   const db = drizzle(pool, { schema });
 
@@ -33,10 +105,11 @@ async function seed() {
     // =========================================================
     // 1. SEED AKUN ADMIN & PANITIA (BETTER AUTH)
     // =========================================================
-    console.log("Seeding akun Admin dan Panitia...");
-    const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || "AdminPilketos2026!Secure";
+    console.log("1/7 Seeding akun Super Admin dan Panitia...");
+    const adminPassword =
+      process.env.INITIAL_ADMIN_PASSWORD || "AdminPilketos2026!Secure";
     const hashedAdminPassword = await hashPassword(adminPassword);
-    const hashedPanitiaPassword = await hashPassword("PanitiaPilketos2026!");
+    const hashedCommitteePassword = await hashPassword("PanitiaPilketos2026!");
 
     const adminUser = {
       id: "usr_super_admin_01",
@@ -60,7 +133,10 @@ async function seed() {
       banned: false,
     };
 
-    await db.insert(schema.users).values([adminUser, committeeUser]).onConflictDoNothing();
+    await db
+      .insert(schema.users)
+      .values([adminUser, committeeUser])
+      .onConflictDoNothing();
 
     await db
       .insert(schema.accounts)
@@ -77,7 +153,7 @@ async function seed() {
           accountId: committeeUser.id,
           providerId: "credential",
           userId: committeeUser.id,
-          password: hashedPanitiaPassword,
+          password: hashedCommitteePassword,
         },
       ])
       .onConflictDoNothing();
@@ -85,7 +161,7 @@ async function seed() {
     // =========================================================
     // 2. SEED ELECTIONS & SETTINGS (PILKETOS 2026)
     // =========================================================
-    console.log("Seeding data Pemilihan PILKETOS 2026...");
+    console.log("2/7 Seeding data pemilihan PILKETOS 2026...");
     const electionId = "e1000000-0000-0000-0000-000000000001";
 
     await db
@@ -108,6 +184,7 @@ async function seed() {
     await db
       .insert(schema.electionSettings)
       .values({
+        id: "f1000000-0000-0000-0000-000000000001",
         electionId,
         idLabel: "NIS",
         groupLabel: "Rombel",
@@ -122,7 +199,7 @@ async function seed() {
     // =========================================================
     // 3. SEED MASTER DATA: TINGKAT & JURUSAN
     // =========================================================
-    console.log("Seeding data Tingkat Kelas dan Jurusan...");
+    console.log("3/7 Seeding tingkat kelas dan jurusan...");
     const gradeXId = "a1000000-0000-0000-0000-000000000001";
     const gradeXIId = "a1000000-0000-0000-0000-000000000002";
     const gradeXIIId = "a1000000-0000-0000-0000-000000000003";
@@ -150,7 +227,7 @@ async function seed() {
     // =========================================================
     // 4. SEED ROMBEL (VOTER GROUPS 1 s/d 7)
     // =========================================================
-    console.log("Seeding data Rombel 1 s/d 7...");
+    console.log("4/7 Seeding Rombel 1 s/d 7...");
     const rombelIds = [
       "d1000000-0000-0000-0000-000000000001",
       "d1000000-0000-0000-0000-000000000002",
@@ -170,174 +247,173 @@ async function seed() {
       majorId: index % 2 === 0 ? majorIPAId : majorIPSId,
     }));
 
-    await db.insert(schema.voterGroups).values(rombelData).onConflictDoNothing();
+    await db
+      .insert(schema.voterGroups)
+      .values(rombelData)
+      .onConflictDoNothing();
 
     // =========================================================
-    // 5. SEED KANDIDAT (4 PASANGAN CALON KETUA OSIS)
+    // 5. SEED 4 KANDIDAT AKTIF
     // =========================================================
-    console.log("Seeding 4 Kandidat Ketua OSIS...");
-    const candidate1Id = "c1000000-0000-0000-0000-000000000001";
-    const candidate2Id = "c1000000-0000-0000-0000-000000000002";
-    const candidate3Id = "c1000000-0000-0000-0000-000000000003";
-    const candidate4Id = "c1000000-0000-0000-0000-000000000004";
+    console.log("5/7 Seeding 4 kandidat aktif...");
+    const candidateIds: Record<number, string> = {
+      1: "c1000000-0000-0000-0000-000000000001",
+      2: "c1000000-0000-0000-0000-000000000002",
+      3: "c1000000-0000-0000-0000-000000000003",
+      4: "c1000000-0000-0000-0000-000000000004",
+    };
 
-    const candidateData = [
-      {
-        id: candidate1Id,
-        electionId,
-        candidateNumber: 1,
-        name: "Raka Aditya Pratama",
-        classOrUnit: "XI IPA",
-        motto: "Bersama Bergerak, Bersama Bersinar",
-        vision:
-          "Mewujudkan OSIS SMA Bojong Gede yang inklusif, inovatif, dan berdaya saing tinggi dalam bidang akademik dan non-akademik.",
-        missions: [
-          "Meningkatkan partisipasi aktif siswa dalam setiap kegiatan sekolah",
-          "Mengembangkan program kerja berbasis digital dan ramah lingkungan",
-          "Mewadahi aspirasi seluruh warga sekolah secara transparan dan terbuka",
-          "Mempererat kolaborasi antar-ekstrakurikuler dan organisasi internal sekolah",
-        ],
-        programs: [
-          "Pekan Kreasi & Seni Pelajar",
-          "Kotak Aspirasi Digital Siswa",
-          "Bank Sampah & Gerakan Sekolah Hijau",
-        ],
-        supporters: [
-          "Paskibra SMA Bojong Gede",
-          "Klub Debat Bahasa Indonesia",
-          "PMR Unit 01",
-        ],
-        photoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwNeqSs7iHKSD_ggpALw4dlbaGz2Xtt030aWJ3PEnN37wKv8VdkXHl_TAbyJutS-kfvj1S8XAhVzRj1J6ePWydM4RsrEvL8Gs28eklM01_PWfTsbwKXym4AxBd-ViSy5OwPHdJMgvDeYetSj-6LdNEcta5atS2Wqen38EBfIPsyX6o_erO6Wou7qTuB9g-KqUyv9zYMYNdh5aPLK0vJDzwrtIAFYfOZkBNEhPJXsWinBB-CSZbKCCz",
-        themeColor: "red" as const,
-        isActive: true,
-      },
-      {
-        id: candidate2Id,
-        electionId,
-        candidateNumber: 2,
-        name: "Alya Putri Maharani",
-        classOrUnit: "XI IPS",
-        motto: "Suara Kita, Aksi Nyata",
-        vision:
-          "Membangun karakter siswa yang berintegritas, mandiri, dan berbudaya gotong royong.",
-        missions: [
-          "Menguatkan kepedulian sosial melalui bakti masyarakat berkala",
-          "Mendorong literasi digital dan kewirausahaan siswa",
-          "Menciptakan ruang belajar yang suportif dan bebas perundungan",
-        ],
-        programs: [
-          "OSIS Peduli Sesama",
-          "Pelatihan Content Creator & Public Speaking",
-          "Forum Diskusi Antar-Kelas",
-        ],
-        supporters: [
-          "Pramuka Gugus Depan",
-          "Ekstrakurikuler Teater",
-          "Rohis & Rokris",
-        ],
-        photoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwNeqSs7iHKSD_ggpALw4dlbaGz2Xtt030aWJ3PEnN37wKv8VdkXHl_TAbyJutS-kfvj1S8XAhVzRj1J6ePWydM4RsrEvL8Gs28eklM01_PWfTsbwKXym4AxBd-ViSy5OwPHdJMgvDeYetSj-6LdNEcta5atS2Wqen38EBfIPsyX6o_erO6Wou7qTuB9g-KqUyv9zYMYNdh5aPLK0vJDzwrtIAFYfOZkBNEhPJXsWinBB-CSZbKCCz",
-        themeColor: "green" as const,
-        isActive: true,
-      },
-      {
-        id: candidate3Id,
-        electionId,
-        candidateNumber: 3,
-        name: "Dimas Bagaskara",
-        classOrUnit: "XI IPA",
-        motto: "Kreatif, Peduli, Berprestasi",
-        vision:
-          "Menjadikan SMA Bojong Gede sebagai barometer prestasi kepemudaan di tingkat regional.",
-        missions: [
-          "Fasilitasi pembinaan intensif kompetisi sains dan olahraga",
-          "Digitalisasi administrasi dan dokumentasi kegiatan OSIS",
-          "Membangun jejaring alumni untuk bimbingan karir dan kuliah",
-        ],
-        programs: [
-          "Olimpiade Sekolah Terpadu",
-          "Mentoring Kampus bersama Alumni",
-          "Pojok Literasi Digital",
-        ],
-        supporters: [
-          "Klub Sains & Robotik",
-          "Klub Basket & Futsal",
-          "English Club",
-        ],
-        photoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwNeqSs7iHKSD_ggpALw4dlbaGz2Xtt030aWJ3PEnN37wKv8VdkXHl_TAbyJutS-kfvj1S8XAhVzRj1J6ePWydM4RsrEvL8Gs28eklM01_PWfTsbwKXym4AxBd-ViSy5OwPHdJMgvDeYetSj-6LdNEcta5atS2Wqen38EBfIPsyX6o_erO6Wou7qTuB9g-KqUyv9zYMYNdh5aPLK0vJDzwrtIAFYfOZkBNEhPJXsWinBB-CSZbKCCz",
-        themeColor: "blue" as const,
-        isActive: true,
-      },
-      {
-        id: candidate4Id,
-        electionId,
-        candidateNumber: 4,
-        name: "Nadia Safira Rahman",
-        classOrUnit: "XI IPS",
-        motto: "Satu Langkah, Seribu Karya",
-        vision:
-          "OSIS yang adaptif, hangat, dan menjadi rumah kolaborasi bagi seluruh potensi siswa.",
-        missions: [
-          "Menyelenggarakan ruang apresiasi karya seni dan musik berkala",
-          "Menjamin kebersihan dan kenyamanan fasilitas belajar bersama pihak sekolah",
-          "Mengedepankan keterbukaan informasi program dan anggaran kegiatan",
-        ],
-        programs: [
-          "Festival Band & Akustik Siswa",
-          "Kampanye Mental Health Pelajar",
-          "Market Day Kewirausahaan Mandiri",
-        ],
-        supporters: [
-          "Paduan Suara",
-          "Klub Fotografi & Jurnalistik",
-          "Klub Seni Rupa",
-        ],
-        photoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwNeqSs7iHKSD_ggpALw4dlbaGz2Xtt030aWJ3PEnN37wKv8VdkXHl_TAbyJutS-kfvj1S8XAhVzRj1J6ePWydM4RsrEvL8Gs28eklM01_PWfTsbwKXym4AxBd-ViSy5OwPHdJMgvDeYetSj-6LdNEcta5atS2Wqen38EBfIPsyX6o_erO6Wou7qTuB9g-KqUyv9zYMYNdh5aPLK0vJDzwrtIAFYfOZkBNEhPJXsWinBB-CSZbKCCz",
-        themeColor: "amber" as const,
-        isActive: true,
-      },
-    ];
-
-    await db.insert(schema.candidates).values(candidateData).onConflictDoNothing();
+    await db
+      .insert(schema.candidates)
+      .values([
+        {
+          id: candidateIds[1],
+          electionId,
+          candidateNumber: 1,
+          name: "Raka Aditya Pratama",
+          classOrUnit: "XI IPA",
+          motto: "Bersama Bergerak, Bersama Bersinar",
+          vision:
+            "Mewujudkan OSIS SMA Bojong Gede yang inklusif, inovatif, dan berdaya saing tinggi dalam bidang akademik dan non-akademik.",
+          missions: [
+            "Meningkatkan partisipasi aktif siswa dalam setiap kegiatan sekolah",
+            "Mengembangkan program kerja berbasis digital dan ramah lingkungan",
+            "Mewadahi aspirasi seluruh warga sekolah secara transparan dan terbuka",
+            "Mempererat kolaborasi antar-ekstrakurikuler dan organisasi internal sekolah",
+          ],
+          programs: [
+            "Pekan Kreasi & Seni Pelajar",
+            "Kotak Aspirasi Digital Siswa",
+            "Bank Sampah & Gerakan Sekolah Hijau",
+          ],
+          supporters: [
+            "Paskibra SMA Bojong Gede",
+            "Klub Debat Bahasa Indonesia",
+            "PMR Unit 01",
+          ],
+          photoUrl: null,
+          themeColor: "red",
+          isActive: true,
+        },
+        {
+          id: candidateIds[2],
+          electionId,
+          candidateNumber: 2,
+          name: "Alya Putri Maharani",
+          classOrUnit: "XI IPS",
+          motto: "Suara Kita, Aksi Nyata",
+          vision:
+            "Membangun karakter siswa yang berintegritas, mandiri, dan berbudaya gotong royong.",
+          missions: [
+            "Menguatkan kepedulian sosial melalui bakti masyarakat berkala",
+            "Mendorong literasi digital dan kewirausahaan siswa",
+            "Menciptakan ruang belajar yang suportif dan bebas perundungan",
+          ],
+          programs: [
+            "OSIS Peduli Sesama",
+            "Pelatihan Content Creator & Public Speaking",
+            "Forum Diskusi Antar-Kelas",
+          ],
+          supporters: [
+            "Pramuka Gugus Depan",
+            "Ekstrakurikuler Teater",
+            "Rohis & Rokris",
+          ],
+          photoUrl: null,
+          themeColor: "green",
+          isActive: true,
+        },
+        {
+          id: candidateIds[3],
+          electionId,
+          candidateNumber: 3,
+          name: "Dimas Bagaskara",
+          classOrUnit: "XI IPA",
+          motto: "Kreatif, Peduli, Berprestasi",
+          vision:
+            "Menjadikan SMA Bojong Gede sebagai barometer prestasi kepemudaan di tingkat regional.",
+          missions: [
+            "Fasilitasi pembinaan intensif kompetisi sains dan olahraga",
+            "Digitalisasi administrasi dan dokumentasi kegiatan OSIS",
+            "Membangun jejaring alumni untuk bimbingan karir dan kuliah",
+          ],
+          programs: [
+            "Olimpiade Sekolah Terpadu",
+            "Mentoring Kampus bersama Alumni",
+            "Pojok Literasi Digital",
+          ],
+          supporters: [
+            "Klub Sains & Robotik",
+            "Klub Basket & Futsal",
+            "English Club",
+          ],
+          photoUrl: null,
+          themeColor: "blue",
+          isActive: true,
+        },
+        {
+          id: candidateIds[4],
+          electionId,
+          candidateNumber: 4,
+          name: "Nadia Safira Rahman",
+          classOrUnit: "XI IPS",
+          motto: "Satu Langkah, Seribu Karya",
+          vision:
+            "OSIS yang adaptif, hangat, dan menjadi rumah kolaborasi bagi seluruh potensi siswa.",
+          missions: [
+            "Menyelenggarakan ruang apresiasi karya seni dan musik berkala",
+            "Menjamin kebersihan dan kenyamanan fasilitas belajar bersama pihak sekolah",
+            "Mengedepankan keterbukaan informasi program dan anggaran kegiatan",
+          ],
+          programs: [
+            "Festival Band & Akustik Siswa",
+            "Kampanye Mental Health Pelajar",
+            "Market Day Kewirausahaan Mandiri",
+          ],
+          supporters: [
+            "Paduan Suara",
+            "Klub Fotografi & Jurnalistik",
+            "Klub Seni Rupa",
+          ],
+          photoUrl: null,
+          themeColor: "amber",
+          isActive: true,
+        },
+      ])
+      .onConflictDoNothing();
 
     // =========================================================
-    // 6. SEED SAMPEL DPT (DAFTAR PEMILIH TETAP CONTOH)
+    // 6. SEED 76 DPT PEMILIH & SUARA AWAL (IDEMPOTENT)
     // =========================================================
-    console.log("Seeding data contoh pemilih DPT...");
-    const sampleVoterNames = [
-      { nis: "2324001", name: "Aditya Pratama", rombelIdx: 0, status: "not_voted" as const, token: "JUFT88TF" },
-      { nis: "2324002", name: "Ahmad Fauzi", rombelIdx: 0, status: "not_voted" as const, token: "WPMTTE6G" },
-      { nis: "2324003", name: "Dewi Sartika", rombelIdx: 0, status: "not_voted" as const, token: "HHZU7B48" },
-      { nis: "2324004", name: "Putri Ayu Lestari", rombelIdx: 1, status: "voted" as const, votedCand: candidate1Id },
-      { nis: "2324005", name: "Budi Santoso", rombelIdx: 1, status: "voted" as const, votedCand: candidate1Id },
-      { nis: "2324006", name: "Citra Lestari", rombelIdx: 1, status: "not_voted" as const },
-      { nis: "2324007", name: "Doni Prasetyo", rombelIdx: 2, status: "voted" as const, votedCand: candidate2Id },
-      { nis: "2324008", name: "Eka Rahmawati", rombelIdx: 2, status: "not_voted" as const },
-      { nis: "2324009", name: "Fajar Nugraha", rombelIdx: 2, status: "voted" as const, votedCand: candidate3Id },
-      { nis: "2324010", name: "Gita Permata", rombelIdx: 2, status: "not_voted" as const },
-      { nis: "2324011", name: "Anisa Rahmawati", rombelIdx: 3, status: "not_voted" as const, token: "P8TYM5KR" },
-      { nis: "2324012", name: "Hendra Wijaya", rombelIdx: 3, status: "voted" as const, votedCand: candidate4Id },
-      { nis: "2324013", name: "Indah Kusumawati", rombelIdx: 3, status: "not_voted" as const },
-      { nis: "2324014", name: "Joko Supriyanto", rombelIdx: 4, status: "not_voted" as const },
-      { nis: "2324015", name: "Kartika Sari", rombelIdx: 4, status: "voted" as const, votedCand: candidate1Id },
-      { nis: "2324016", name: "Lukman Hakim", rombelIdx: 4, status: "not_voted" as const },
-      { nis: "2324017", name: "Mega Utami", rombelIdx: 5, status: "not_voted" as const },
-      { nis: "2324018", name: "Naufal Ramadhan", rombelIdx: 5, status: "voted" as const, votedCand: candidate2Id },
-      { nis: "2324019", name: "Olivia Maharani", rombelIdx: 5, status: "not_voted" as const },
-      { nis: "2024001", name: "Deni Subekti", rombelIdx: 6, status: "not_voted" as const },
-      { nis: "2024002", name: "Rian Hidayat", rombelIdx: 6, status: "voted" as const, votedCand: candidate3Id },
-      { nis: "2024003", name: "Siti Nurhaliza", rombelIdx: 6, status: "not_voted" as const },
-    ];
+    console.log("6/7 Seeding 76 data DPT dan suara awal...");
+    const extraVoters = EXTRA_STUDENT_NAMES.map((name, idx) => ({
+      nis: String(2425001 + idx),
+      name,
+      rombelIdx: idx % rombelIds.length,
+      status: "not_voted" as const,
+      token: undefined as string | undefined,
+      votedCandidateNumber: undefined as number | undefined,
+    }));
 
-    const votersToInsert = [];
-    const votesToInsert = [];
+    const allSeedVoters = [...DEMO_VOTERS, ...extraVoters];
+    if (allSeedVoters.length !== 76) {
+      throw new Error(`Expected 76 DPT voters, got ${allSeedVoters.length}`);
+    }
 
-    for (const sv of sampleVoterNames) {
-      const rawToken = (sv as any).token || generateVoterToken(8);
+    const votersToInsert: Array<typeof schema.voters.$inferInsert> = [];
+    const votesToInsert: Array<typeof schema.votes.$inferInsert> = [];
+
+    for (const sv of allSeedVoters) {
+      const voterId = deterministicUuid(`voter-${electionId}-${sv.nis}`);
+      const rawToken = sv.token ?? deterministicVoterToken(sv.nis);
       const tokenHash = hashVoterToken(rawToken);
       const isVoted = sv.status === "voted";
-      const tokenEncrypted = isVoted ? "[REDACTED]" : encryptVoterToken(rawToken);
+      const tokenEncrypted = isVoted
+        ? "[REDACTED]"
+        : encryptVoterToken(rawToken);
 
       votersToInsert.push({
+        id: voterId,
         electionId,
         groupId: rombelIds[sv.rombelIdx],
         voterIdentity: sv.nis,
@@ -349,29 +425,37 @@ async function seed() {
         votedAt: isVoted ? new Date("2026-10-25T14:24:00Z") : null,
       });
 
-      if (isVoted && sv.votedCand) {
+      if (isVoted && sv.votedCandidateNumber) {
         votesToInsert.push({
+          id: deterministicUuid(`vote-${electionId}-${sv.nis}`),
           electionId,
-          candidateId: sv.votedCand,
+          candidateId: candidateIds[sv.votedCandidateNumber],
           createdAt: new Date("2026-10-25T14:24:00Z"),
         });
       }
     }
 
-    await db.insert(schema.voters).values(votersToInsert).onConflictDoNothing();
+    await db
+      .insert(schema.voters)
+      .values(votersToInsert)
+      .onConflictDoNothing();
 
     if (votesToInsert.length > 0) {
-      await db.insert(schema.votes).values(votesToInsert);
+      await db
+        .insert(schema.votes)
+        .values(votesToInsert)
+        .onConflictDoNothing();
     }
 
     // =========================================================
-    // 7. SEED AUDIT LOG AWAL
+    // 7. SEED AUDIT LOG AWAL (IDEMPOTENT)
     // =========================================================
-    console.log("Seeding audit log awal...");
+    console.log("7/7 Seeding audit log awal...");
     await db
       .insert(schema.auditLogs)
       .values([
         {
+          id: deterministicUuid(`audit-${electionId}-1`),
           electionId,
           actorType: "admin",
           actorId: adminUser.id,
@@ -384,6 +468,7 @@ async function seed() {
           createdAt: new Date("2026-10-20T08:00:00Z"),
         },
         {
+          id: deterministicUuid(`audit-${electionId}-2`),
           electionId,
           actorType: "admin",
           actorId: adminUser.id,
@@ -396,6 +481,7 @@ async function seed() {
           createdAt: new Date("2026-10-21T09:30:00Z"),
         },
         {
+          id: deterministicUuid(`audit-${electionId}-3`),
           electionId,
           actorType: "admin",
           actorId: committeeUser.id,
@@ -403,16 +489,30 @@ async function seed() {
           actorIdentity: `@${committeeUser.username}`,
           action: "dpt_imported",
           actionTitle: "Impor DPT",
-          description: "Panitia mengimpor data DPT contoh untuk 7 Rombel",
+          description: "Panitia mengimpor 76 data DPT awal untuk 7 Rombel",
           ipAddress: "::1",
           createdAt: new Date("2026-10-22T10:15:00Z"),
         },
         {
+          id: deterministicUuid(`audit-${electionId}-4`),
           electionId,
           actorType: "voter",
-          actorId: null,
+          actorId: deterministicUuid(`voter-${electionId}-2324004`),
           actorName: "Putri Ayu Lestari",
           actorIdentity: "NIS 2324004",
+          action: "vote_cast",
+          actionTitle: "Vote cast",
+          description: "Pemilih telah memberikan suara",
+          ipAddress: "::1",
+          createdAt: new Date("2026-10-25T14:24:00Z"),
+        },
+        {
+          id: deterministicUuid(`audit-${electionId}-5`),
+          electionId,
+          actorType: "voter",
+          actorId: deterministicUuid(`voter-${electionId}-2324005`),
+          actorName: "Budi Santoso",
+          actorIdentity: "NIS 2324005",
           action: "vote_cast",
           actionTitle: "Vote cast",
           description: "Pemilih telah memberikan suara",
@@ -422,7 +522,7 @@ async function seed() {
       ])
       .onConflictDoNothing();
 
-    console.log("✓ Seeding PILKETOS 2026 berhasil diselesaikan!");
+    console.log("✓ Seeding PILKETOS 2026 berhasil diselesaikan (76 DPT, 4 Kandidat, 2 Suara, 5 Log)!");
   } catch (error) {
     console.error("Gagal melakukan seeding:", error);
     process.exit(1);

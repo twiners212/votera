@@ -2,91 +2,119 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Menu, Shield, Clock, ExternalLink } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import { AdminSidebar } from "./admin-sidebar";
-import { authClient } from "@/lib/auth/admin-client";
+import { Menu } from "lucide-react";
+import {
+  AdminSidebarContent,
+  ADMIN_NAV_GROUPS,
+} from "@/components/admin/admin-sidebar";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import type { AdminRole } from "@/types/votera";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/admin/dashboard": "Dashboard",
-  "/admin/candidates": "Manajemen Kandidat",
-  "/admin/voters": "Manajemen Pemilih (DPT)",
-  "/admin/results": "Hasil Pemilihan & Berita Acara",
-  "/admin/classes": "Tingkat Kelas & Rombel",
-  "/admin/majors": "Data Jurusan",
-  "/admin/settings": "Pengaturan Pemilihan",
-  "/admin/logs": "Log Aktivitas Sistem",
-  "/admin/users": "Kelola Administrator",
-};
+const ROUTE_TITLES: Record<string, string> = ADMIN_NAV_GROUPS.flatMap(
+  (group) => group.items
+).reduce<Record<string, string>>((acc, item) => {
+  acc[item.href] = item.label;
+  return acc;
+}, {});
 
-export function AdminTopbar() {
+function resolvePageTitle(pathname: string, fallback?: string): string {
+  if (fallback) return fallback;
+  const matched = Object.entries(ROUTE_TITLES).find(
+    ([href]) => pathname === href || pathname.startsWith(`${href}/`)
+  );
+  return matched ? matched[1] : "Panel Panitia";
+}
+
+export interface AdminTopbarProps {
+  title?: string;
+  adminName?: string;
+  role?: AdminRole;
+  shortName?: string;
+  logoUrl?: string | null;
+  onLogout?: () => void | Promise<void>;
+  className?: string;
+}
+
+export function AdminTopbar({
+  title,
+  adminName = "Super Admin",
+  role = "super_admin",
+  shortName = "PILKETOS 2026",
+  logoUrl,
+  onLogout,
+  className,
+}: AdminTopbarProps) {
   const pathname = usePathname();
-  const [open, setOpen] = React.useState(false);
-  const { data: session } = authClient.useSession();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const title = PAGE_TITLES[pathname] || "Panel Administrator";
-  const initials = session?.user?.name
-    ? session.user.name
-        .split(" ")
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "AD";
-
-  const isSuperAdmin = session?.user?.role === "super_admin";
+  const pageTitle = resolvePageTitle(pathname, title);
+  const roleLabel = role === "super_admin" ? "Super Admin" : "Panitia";
+  const initial = adminName.trim().charAt(0).toUpperCase() || "A";
 
   return (
-    <header className="h-16 bg-white border-b border-[#E2E8F0] px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
-      {/* Left: Mobile Drawer Trigger & Title */}
-      <div className="flex items-center gap-3">
-        {/* Mobile Sheet Trigger */}
-        <Sheet open={open} onOpenChange={setOpen}>
+    <header
+      className={cn(
+        "sticky top-0 z-20 flex h-16 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 sm:px-7",
+        className
+      )}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
-            <button
+            <Button
               type="button"
-              className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-              aria-label="Buka navigasi"
+              variant="outline"
+              size="icon"
+              aria-label="Buka menu navigasi"
+              className="h-9 w-9 shrink-0 border-[#E2E8F0] lg:hidden"
             >
-              <Menu className="w-5 h-5" />
-            </button>
+              <Menu className="h-4 w-4 text-[#0F172A]" />
+            </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-[240px]">
-            <AdminSidebar onNavClick={() => setOpen(false)} />
+          <SheetContent side="left" className="w-64 p-0">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Menu Panel Panitia</SheetTitle>
+              <SheetDescription>
+                Navigasi utama manajemen pemilihan Votera.
+              </SheetDescription>
+            </SheetHeader>
+            <AdminSidebarContent
+              shortName={shortName}
+              logoUrl={logoUrl}
+              role={role}
+              onNavigate={() => setMobileOpen(false)}
+              onLogout={onLogout}
+            />
           </SheetContent>
         </Sheet>
 
-        <div>
-          <h1 className="text-[16px] sm:text-[17px] font-bold text-slate-800 tracking-tight">
-            {title}
-          </h1>
-          <p className="text-[11px] text-slate-400 hidden sm:block">
-            PILKETOS 2026 • SMA Bojong Gede
-          </p>
-        </div>
+        <h2 className="truncate text-[17px] font-bold tracking-tight text-[#0F172A]">
+          {pageTitle}
+        </h2>
       </div>
 
-      {/* Right: Status Pill & Profile */}
-      <div className="flex items-center gap-3 sm:gap-4">
-        {/* Live Election Status Pill */}
-        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-medium text-emerald-700">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Pemilihan Buka</span>
+      <div className="flex items-center gap-3">
+        <div
+          aria-hidden="true"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#FECACA] bg-[#FFF0EE] text-xs font-bold text-[#D93829]"
+        >
+          {initial}
         </div>
-
-        {/* User Profile Pill matching Stitch Screen 08 */}
-        <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-[#FDECEB] text-[#C8322B] font-bold text-xs flex items-center justify-center border border-red-100 shadow-xs">
-            {initials}
+        <div className="hidden text-right leading-tight sm:block">
+          <div className="text-xs font-semibold text-[#0F172A]">
+            {adminName}
           </div>
-          <div className="text-right leading-tight hidden sm:block">
-            <div className="text-xs font-semibold text-slate-800">
-              {session?.user?.name || "Administrator"}
-            </div>
-            <div className="text-[10px] text-slate-400">
-              {isSuperAdmin ? "Super Admin" : "Panitia"}
-            </div>
+          <div className="mt-0.5 text-[11px] font-medium text-[#64748B]">
+            {roleLabel}
           </div>
         </div>
       </div>

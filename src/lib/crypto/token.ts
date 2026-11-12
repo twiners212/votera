@@ -1,44 +1,57 @@
 import crypto from "node:crypto";
 
-const ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+export const VOTER_TOKEN_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+
+const DEV_FALLBACK_HMAC_SECRET =
+  "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+const DEV_FALLBACK_ENCRYPTION_KEY =
+  "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
 
 function getHmacSecret(): string {
-  const secret = process.env.TOKEN_HMAC_SECRET;
+  const secret = process.env.TOKEN_HMAC_SECRET?.trim();
   if (!secret) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("TOKEN_HMAC_SECRET wajib disetel di environment variables produksi.");
+      throw new Error(
+        "TOKEN_HMAC_SECRET wajib disetel pada environment production."
+      );
     }
-    return "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    return DEV_FALLBACK_HMAC_SECRET;
   }
   return secret;
 }
 
 function getEncryptionKey(): Buffer {
   const hexKey = process.env.TOKEN_ENCRYPTION_KEY;
-  if (!hexKey || hexKey.length !== 64) {
+  if (!hexKey) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("TOKEN_ENCRYPTION_KEY wajib tepat 64 karakter hex (32 bytes).");
+      throw new Error(
+        "TOKEN_ENCRYPTION_KEY wajib disetel pada environment production."
+      );
     }
-    return Buffer.from("fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210", "hex");
+    return Buffer.from(DEV_FALLBACK_ENCRYPTION_KEY, "hex");
   }
+
+  if (!/^[0-9a-fA-F]{64}$/.test(hexKey)) {
+    throw new Error(
+      "TOKEN_ENCRYPTION_KEY harus berupa tepat 64 karakter hex (32 byte)."
+    );
+  }
+
   return Buffer.from(hexKey, "hex");
 }
 
-/**
- * Menghasilkan token acak 8 karakter dari alfabet non-ambigu (tanpa 0, O, 1, I, L)
- * Menggunakan CSPRNG crypto.randomInt
- */
 export function generateVoterToken(length = 8): string {
+  if (!Number.isInteger(length) || length < 1) {
+    throw new Error("Panjang token harus berupa bilangan bulat positif.");
+  }
+
   let token = "";
   for (let i = 0; i < length; i++) {
-    token += ALPHABET[crypto.randomInt(0, ALPHABET.length)];
+    token += VOTER_TOKEN_ALPHABET[crypto.randomInt(0, VOTER_TOKEN_ALPHABET.length)];
   }
   return token;
 }
 
-/**
- * Hashing token menggunakan HMAC-SHA256 untuk verifikasi login cepat
- */
 export function hashVoterToken(token: string): string {
   const normalized = token.trim().toUpperCase();
   return crypto
@@ -47,50 +60,76 @@ export function hashVoterToken(token: string): string {
     .digest("hex");
 }
 
-/**
- * Verifikasi token terhadap hash tersimpan dengan perbandingan timing-safe
- */
-export function verifyVoterToken(inputToken: string, storedHash: string): boolean {
-  try {
-    const inputHash = hashVoterToken(inputToken);
-    const a = Buffer.from(inputHash, "hex");
-    const b = Buffer.from(storedHash, "hex");
-    return a.length === b.length && crypto.timingSafeEqual(a, b);
-  } catch {
+export function verifyVoterToken(
+  inputToken: string,
+  storedHash: string
+): boolean {
+  if (
+    !inputToken ||
+    !inputToken.trim() ||
+    !storedHash ||
+    !/^[0-9a-fA-F]+$/.test(storedHash) ||
+    storedHash.length % 2 !== 0
+  ) {
     return false;
   }
+
+  const inputHash = hashVoterToken(inputToken);
+  const a = Buffer.from(inputHash, "hex");
+  const b = Buffer.from(storedHash, "hex");
+
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(a, b);
 }
 
-/**
- * Enkripsi token menggunakan AES-256-GCM agar panitia dapat menyalin token dari tabel DPT
- */
 export function encryptVoterToken(token: string): string {
   const key = getEncryptionKey();
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
-  const encrypted = Buffer.concat([cipher.update(token, "utf8"), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(token, "utf8"),
+    cipher.final(),
+  ]);
   const authTag = cipher.getAuthTag();
+
   return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted.toString("hex")}`;
 }
 
-/**
- * Dekripsi token dari ciphertext AES-256-GCM.
- * Menangani token yang sudah diredaksi ([REDACTED]) saat pemilih selesai memilih.
- */
 export function decryptVoterToken(payload: string): string {
-  if (!payload || payload === "[REDACTED]") return "••••••••";
-  try {
-    const [ivHex, authTagHex, encryptedHex] = payload.split(":");
-    if (!ivHex || !authTagHex || !encryptedHex) return "••••••••";
-    const key = getEncryptionKey();
-    const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(ivHex, "hex"));
-    decipher.setAuthTag(Buffer.from(authTagHex, "hex"));
-    const decrypted = Buffer.concat([
-      decipher.update(Buffer.from(encryptedHex, "hex")),
-      decipher.final(),
-    ]);
-    return decrypted.toString("utf8");
-  } catch {
+  if (!payload || payload === "[REDACTED]") {
     return "••••••••";
   }
+
+  const parts = payload.split(":");
+  if (parts.length !== 3) {
+    throw new Error("Format payload token terenkripsi tidak valid.");
+  }
+
+  const [ivHex, authTagHex, encryptedHex] = parts;
+  if (
+    !/^[0-9a-fA-F]{24}$/.test(ivHex) ||
+    !/^[0-9a-fA-F]{32}$/.test(authTagHex) ||
+    !/^[0-9a-fA-F]+$/.test(encryptedHex) ||
+    encryptedHex.length % 2 !== 0
+  ) {
+    throw new Error("Struktur hex token terenkripsi tidak valid.");
+  }
+
+  const key = getEncryptionKey();
+  const decipher = crypto.createDecipheriv(
+    "aes-256-gcm",
+    key,
+    Buffer.from(ivHex, "hex")
+  );
+  decipher.setAuthTag(Buffer.from(authTagHex, "hex"));
+
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(encryptedHex, "hex")),
+    decipher.final(),
+  ]);
+
+  return decrypted.toString("utf8");
 }

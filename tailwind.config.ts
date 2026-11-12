@@ -55,6 +55,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "warm-tint": "var(--bg-warm-tint)",
         brand: {
           DEFAULT: "#D6362C",
           dark: "#A8201A",

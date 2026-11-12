@@ -4,8 +4,13 @@ import { migrate } from "drizzle-orm/neon-serverless/migrator";
 import ws from "ws";
 
 try {
-  if (typeof (process as unknown as { loadEnvFile?: (path: string) => void }).loadEnvFile === "function") {
-    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(".env.local");
+  if (
+    typeof (process as unknown as { loadEnvFile?: (path: string) => void })
+      .loadEnvFile === "function"
+  ) {
+    (process as unknown as { loadEnvFile: (path: string) => void }).loadEnvFile(
+      ".env.local"
+    );
   }
 } catch {
   // Ignore if .env.local doesn't exist
@@ -14,12 +19,17 @@ try {
 neonConfig.webSocketConstructor = ws;
 
 async function runMigration() {
-  const connectionString = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
+  const connectionString =
+    process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error("DIRECT_DATABASE_URL atau DATABASE_URL wajib disetel untuk menjalankan migrasi.");
+    throw new Error(
+      "DIRECT_DATABASE_URL atau DATABASE_URL wajib disetel untuk menjalankan migrasi."
+    );
   }
 
-  console.log("Menjalankan migrasi database ke Neon PostgreSQL (Database: votera)...");
+  console.log(
+    "Menjalankan migrasi database ke Neon PostgreSQL (Database: votera)..."
+  );
   const pool = new Pool({ connectionString });
   const db = drizzle(pool);
 
@@ -28,7 +38,7 @@ async function runMigration() {
     await migrate(db, { migrationsFolder: "./drizzle/migrations" });
     console.log("✓ Migrasi skema Drizzle selesai.");
 
-    // 2. Pasang trigger proteksi immutability tabel audit_logs
+    // 2. Pengaman idempotent: pastikan trigger proteksi append-only audit_logs terpasang
     await pool.query(`
       CREATE OR REPLACE FUNCTION prevent_audit_log_modification()
       RETURNS TRIGGER AS $$

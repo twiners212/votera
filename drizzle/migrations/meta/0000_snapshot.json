@@ -1,5 +1,5 @@
 {
-  "id": "b5fd9d8c-beaf-49dd-b009-daab92818036",
+  "id": "ed656ae0-7c04-4d12-934c-0ed646c27b1f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -901,6 +901,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "impersonated_by": {
+          "name": "impersonated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {

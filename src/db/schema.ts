@@ -13,7 +13,7 @@ import {
 import { relations, sql } from "drizzle-orm";
 
 // =========================================================
-// 1. ENUMS
+// 1. ENUMS (5)
 // =========================================================
 
 export const adminRoleEnum = pgEnum("admin_role", ["super_admin", "committee"]);
@@ -26,9 +26,9 @@ export const electionStatusEnum = pgEnum("election_status", [
 ]);
 
 export const voterStatusEnum = pgEnum("voter_status", [
-  "not_voted", // "Belum memilih"
-  "logged_in", // "Sudah login"
-  "voted",     // "Sudah memilih"
+  "not_voted",
+  "logged_in",
+  "voted",
 ]);
 
 export const actorTypeEnum = pgEnum("actor_type", [
@@ -45,7 +45,7 @@ export const candidateThemeEnum = pgEnum("candidate_theme", [
 ]);
 
 // =========================================================
-// 2. BETTER AUTH TABLES (Admin & Committee Authentication)
+// 2. BETTER AUTH TABLES (4)
 // =========================================================
 
 export const users = pgTable("users", {
@@ -114,14 +114,14 @@ export const verifications = pgTable("verifications", {
 });
 
 // =========================================================
-// 3. ELECTIONS & SETTINGS TABLES
+// 3. ELECTIONS & SETTINGS TABLES (2)
 // =========================================================
 
 export const elections = pgTable(
   "elections",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    slug: text("slug").notNull().unique(), // e.g., "pilketos-2026"
+    slug: text("slug").notNull().unique(),
     shortName: text("short_name").notNull().default("PILKETOS 2026"),
     title: text("title").notNull().default("Pemilihan Ketua OSIS 2026"),
     organizationName: text("organization_name").notNull().default("SMA Bojong Gede"),
@@ -144,10 +144,10 @@ export const electionSettings = pgTable("election_settings", {
     .notNull()
     .unique()
     .references(() => elections.id, { onDelete: "cascade" }),
-  idLabel: text("id_label").notNull().default("NIS"), // e.g., NIM, NIK, ID Anggota
-  groupLabel: text("group_label").notNull().default("Rombel"), // e.g., Kelas, RT, Divisi
-  gradeLabel: text("grade_label").notNull().default("Tingkat"), // e.g., Angkatan, RW
-  majorLabel: text("major_label").notNull().default("Jurusan"), // e.g., Prodi, Unit
+  idLabel: text("id_label").notNull().default("NIS"),
+  groupLabel: text("group_label").notNull().default("Rombel"),
+  gradeLabel: text("grade_label").notNull().default("Tingkat"),
+  majorLabel: text("major_label").notNull().default("Jurusan"),
   isResultPublic: boolean("is_result_public").notNull().default(false),
   logoUrl: text("logo_url"),
   heroBannerUrl: text("hero_banner_url"),
@@ -155,7 +155,7 @@ export const electionSettings = pgTable("election_settings", {
 });
 
 // =========================================================
-// 4. MASTER DATA TABLES (Tingkat Kelas, Jurusan, Rombel)
+// 4. MASTER DATA TABLES (3)
 // =========================================================
 
 export const gradeLevels = pgTable(
@@ -165,7 +165,7 @@ export const gradeLevels = pgTable(
     electionId: uuid("election_id")
       .notNull()
       .references(() => elections.id, { onDelete: "cascade" }),
-    name: text("name").notNull(), // e.g., "Kelas X", "Kelas XI", "Kelas XII"
+    name: text("name").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -181,7 +181,7 @@ export const majors = pgTable(
     electionId: uuid("election_id")
       .notNull()
       .references(() => elections.id, { onDelete: "cascade" }),
-    name: text("name").notNull(), // e.g., "IPA", "IPS"
+    name: text("name").notNull(),
     code: text("code"),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -204,7 +204,7 @@ export const voterGroups = pgTable(
     majorId: uuid("major_id").references(() => majors.id, {
       onDelete: "set null",
     }),
-    name: text("name").notNull(), // e.g., "Rombel 1", "Rombel 2"
+    name: text("name").notNull(),
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -215,7 +215,7 @@ export const voterGroups = pgTable(
 );
 
 // =========================================================
-// 5. CANDIDATES TABLE
+// 5. CANDIDATES TABLE (1)
 // =========================================================
 
 export const candidates = pgTable(
@@ -225,9 +225,9 @@ export const candidates = pgTable(
     electionId: uuid("election_id")
       .notNull()
       .references(() => elections.id, { onDelete: "cascade" }),
-    candidateNumber: integer("candidate_number").notNull(), // #1, #2, #3, #4
+    candidateNumber: integer("candidate_number").notNull(),
     name: text("name").notNull(),
-    classOrUnit: text("class_or_unit").notNull(), // e.g., "XI IPA", "XI IPS"
+    classOrUnit: text("class_or_unit").notNull(),
     motto: text("motto").notNull(),
     vision: text("vision").notNull(),
     missions: jsonb("missions").$type<string[]>().notNull().default([]),
@@ -249,7 +249,7 @@ export const candidates = pgTable(
 );
 
 // =========================================================
-// 6. VOTERS (DPT) & VOTER SESSIONS TABLES
+// 6. VOTERS (DPT) & VOTER SESSIONS TABLES (2)
 // =========================================================
 
 export const voters = pgTable(
@@ -262,10 +262,10 @@ export const voters = pgTable(
     groupId: uuid("group_id")
       .notNull()
       .references(() => voterGroups.id, { onDelete: "restrict" }),
-    voterIdentity: text("voter_identity").notNull(), // NIS e.g. "2324001"
+    voterIdentity: text("voter_identity").notNull(),
     name: text("name").notNull(),
-    tokenHash: text("token_hash").notNull(), // HMAC-SHA256 hash untuk verifikasi login cepat
-    tokenEncrypted: text("token_encrypted").notNull(), // AES-256-GCM ciphertext untuk fitur "Salin" di tabel DPT
+    tokenHash: text("token_hash").notNull(),
+    tokenEncrypted: text("token_encrypted").notNull(),
     voterStatus: voterStatusEnum("voter_status").notNull().default("not_voted"),
     hasVoted: boolean("has_voted").notNull().default(false),
     failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
@@ -306,7 +306,7 @@ export const voterSessions = pgTable(
 );
 
 // =========================================================
-// 7. VOTES TABLE (STRICTLY ANONYMOUS - NO VOTER_ID!)
+// 7. VOTES TABLE (1 - STRICTLY ANONYMOUS, NO VOTER_ID!)
 // =========================================================
 
 export const votes = pgTable(
@@ -319,8 +319,6 @@ export const votes = pgTable(
     candidateId: uuid("candidate_id")
       .notNull()
       .references(() => candidates.id, { onDelete: "restrict" }),
-    // PENTING: DILARANG MENAMBAHKAN voter_id ATAU ip_address DI TABEL INI!
-    // createdAt dibulatkan per menit (date_trunc) saat insert untuk mencegah timing correlation attack.
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`date_trunc('minute', now())`),
@@ -331,7 +329,7 @@ export const votes = pgTable(
 );
 
 // =========================================================
-// 8. AUDIT LOGS TABLE (APPEND-ONLY)
+// 8. AUDIT LOGS TABLE (1 - APPEND-ONLY)
 // =========================================================
 
 export const auditLogs = pgTable(
@@ -341,13 +339,13 @@ export const auditLogs = pgTable(
     electionId: uuid("election_id")
       .notNull()
       .references(() => elections.id, { onDelete: "cascade" }),
-    actorType: actorTypeEnum("actor_type").notNull(), // 'admin' | 'voter' | 'system'
-    actorId: text("actor_id"), // users.id atau voters.id
-    actorName: text("actor_name").notNull(), // e.g., "Super Admin" atau "Putri Ayu Lestari"
-    actorIdentity: text("actor_identity").notNull(), // e.g., "@admin" atau "NIS 2324004"
-    action: text("action").notNull(), // e.g., "admin_login", "voter_login", "vote_cast", "voter_logout"
-    actionTitle: text("action_title").notNull(), // e.g., "Admin login", "Vote cast", "Pemilih login"
-    description: text("description").notNull(), // e.g., "Pemilih telah memberikan suara"
+    actorType: actorTypeEnum("actor_type").notNull(),
+    actorId: text("actor_id"),
+    actorName: text("actor_name").notNull(),
+    actorIdentity: text("actor_identity").notNull(),
+    action: text("action").notNull(),
+    actionTitle: text("action_title").notNull(),
+    description: text("description").notNull(),
     ipAddress: text("ip_address").notNull().default("::1"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -362,6 +360,25 @@ export const auditLogs = pgTable(
 // 9. DRIZZLE RELATIONS
 // =========================================================
 
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+  accounts: many(accounts),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
 export const electionsRelations = relations(elections, ({ one, many }) => ({
   settings: one(electionSettings, {
     fields: [elections.id],
@@ -374,6 +391,29 @@ export const electionsRelations = relations(elections, ({ one, many }) => ({
   voters: many(voters),
   votes: many(votes),
   auditLogs: many(auditLogs),
+}));
+
+export const electionSettingsRelations = relations(electionSettings, ({ one }) => ({
+  election: one(elections, {
+    fields: [electionSettings.electionId],
+    references: [elections.id],
+  }),
+}));
+
+export const gradeLevelsRelations = relations(gradeLevels, ({ one, many }) => ({
+  election: one(elections, {
+    fields: [gradeLevels.electionId],
+    references: [elections.id],
+  }),
+  voterGroups: many(voterGroups),
+}));
+
+export const majorsRelations = relations(majors, ({ one, many }) => ({
+  election: one(elections, {
+    fields: [majors.electionId],
+    references: [elections.id],
+  }),
+  voterGroups: many(voterGroups),
 }));
 
 export const voterGroupsRelations = relations(voterGroups, ({ one, many }) => ({
@@ -404,10 +444,39 @@ export const votersRelations = relations(voters, ({ one, many }) => ({
   sessions: many(voterSessions),
 }));
 
+export const voterSessionsRelations = relations(voterSessions, ({ one }) => ({
+  voter: one(voters, {
+    fields: [voterSessions.voterId],
+    references: [voters.id],
+  }),
+  election: one(elections, {
+    fields: [voterSessions.electionId],
+    references: [elections.id],
+  }),
+}));
+
 export const candidatesRelations = relations(candidates, ({ one, many }) => ({
   election: one(elections, {
     fields: [candidates.electionId],
     references: [elections.id],
   }),
   votes: many(votes),
+}));
+
+export const votesRelations = relations(votes, ({ one }) => ({
+  election: one(elections, {
+    fields: [votes.electionId],
+    references: [elections.id],
+  }),
+  candidate: one(candidates, {
+    fields: [votes.candidateId],
+    references: [candidates.id],
+  }),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  election: one(elections, {
+    fields: [auditLogs.electionId],
+    references: [elections.id],
+  }),
 }));

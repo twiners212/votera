@@ -4,22 +4,31 @@ import { drizzle as drizzleServerless } from "drizzle-orm/neon-serverless";
 import ws from "ws";
 import * as schema from "./schema";
 
-// Konfigurasi WebSocket constructor untuk lingkungan Node.js
+// Diperlukan untuk lingkungan Node.js saat memakai WebSocket Pool
 neonConfig.webSocketConstructor = ws;
 
 const connectionString =
-  process.env.DATABASE_URL ||
-  process.env.DIRECT_DATABASE_URL ||
-  "postgres://localhost:5432/dummy";
+  process.env.DATABASE_URL || process.env.DIRECT_DATABASE_URL;
 
-// 1. Driver HTTP: Sangat cepat untuk query SELECT dan operasi non-transaksional
-const sqlHttp = neon(connectionString);
+if (!connectionString && process.env.NEXT_PHASE !== "phase-production-build") {
+  throw new Error(
+    "DATABASE_URL (Pooled) wajib diisi di environment variables."
+  );
+}
+
+const resolvedUrl =
+  connectionString ||
+  "postgresql://placeholder:placeholder@localhost:5432/votera";
+
+// 1. Driver HTTP: Cepat untuk query SELECT & operasi non-transaksional
+const sqlHttp = neon(resolvedUrl);
 export const db = drizzleHttp(sqlHttp, { schema });
 
-// 2. Driver Serverless (WebSocket Pool): Wajib untuk transaksi interaktif (submit suara & impor DPT)
-const pool = new Pool({ connectionString });
+// 2. Driver Serverless (WebSocket Pool): Wajib untuk transaksi interaktif (submit suara & batch import)
+const pool = new Pool({ connectionString: resolvedUrl });
 export const dbPool = drizzleServerless(pool, { schema });
 
 export type Database = typeof db;
 export type DatabasePool = typeof dbPool;
+
 export * from "./schema";
