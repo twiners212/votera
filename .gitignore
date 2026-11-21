@@ -30,6 +30,9 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 
+# Vercel Project Metadata
+.vercel/
+
 # Uploads & Temporary Media
 public/uploads/*
 !public/uploads/.gitkeep
