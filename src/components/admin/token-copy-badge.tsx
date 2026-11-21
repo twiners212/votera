@@ -102,7 +102,7 @@ export function TokenCopyBadge({
         onClick={handleCopy}
         aria-label={`Salin token ${token}`}
         className={cn(
-          "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30",
+          "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30",
           copied
             ? "text-[#15803D]"
             : "text-[#D93829] hover:bg-[#FFF0EE] hover:text-[#B8281B]"
@@ -110,8 +110,8 @@ export function TokenCopyBadge({
       >
         {copied ? (
           <>
-            <Check className="h-3 w-3 shrink-0" aria-hidden="true" />
-            <span>Tersalin ✓</span>
+            <span>Tersalin</span>
+            <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           </>
         ) : (
           <>

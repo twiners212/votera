@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-b">
+  <title id="title-b">Votera Civic Slot</title>
+  <!-- Left Pillar -->
+  <path fill="#000000" d="M 40 52 L 96 52 L 120 122 L 120 204 L 96 204 Z"/>
+  <!-- Right Pillar -->
+  <path fill="#000000" d="M 160 52 L 216 52 L 160 204 L 136 204 L 136 122 Z"/>
+</svg>

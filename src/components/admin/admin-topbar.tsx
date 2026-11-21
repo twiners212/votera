@@ -97,9 +97,20 @@ export function AdminTopbar({
           </SheetContent>
         </Sheet>
 
-        <h2 className="truncate text-[17px] font-bold tracking-tight text-[#0F172A]">
-          {pageTitle}
-        </h2>
+        <div className="flex items-center gap-2 min-w-0">
+          <nav
+            aria-label="Breadcrumb"
+            className="hidden items-center gap-1.5 text-xs text-[#94A3B8] sm:flex"
+          >
+            <span className="font-medium text-[#64748B]">Admin</span>
+            <span aria-hidden="true" className="text-[#CBD5E1]">
+              /
+            </span>
+          </nav>
+          <h2 className="truncate text-base font-bold tracking-tight text-[#0F172A] sm:text-[17px]">
+            {pageTitle}
+          </h2>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
@@ -113,8 +124,17 @@ export function AdminTopbar({
           <div className="text-xs font-semibold text-[#0F172A]">
             {adminName}
           </div>
-          <div className="mt-0.5 text-[11px] font-medium text-[#64748B]">
-            {roleLabel}
+          <div className="mt-0.5">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase",
+                role === "super_admin"
+                  ? "border border-[#FECACA] bg-[#FFF0EE] text-[#D93829]"
+                  : "border border-[#E2E8F0] bg-[#F1F5F9] text-[#475569]"
+              )}
+            >
+              {roleLabel}
+            </span>
           </div>
         </div>
       </div>

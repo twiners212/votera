@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
+import { getAdminSession } from "@/lib/auth/admin-guard";
 import { CandidatesManager } from "@/components/admin/candidates-manager";
 
 export const metadata: Metadata = {
@@ -25,7 +27,12 @@ async function resolveActiveElectionId(): Promise<string> {
 }
 
 export default async function AdminCandidatesPage() {
+  const session = await getAdminSession();
+  if (!session) {
+    redirect("/admin/login");
+  }
+
   const electionId = await resolveActiveElectionId();
 
-  return <CandidatesManager electionId={electionId} />;
+  return <CandidatesManager electionId={electionId} role={session.user.role} />;
 }

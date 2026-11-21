@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import {
   Controller,
   useFieldArray,
@@ -11,7 +10,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Plus, Trash2, Upload, X } from "lucide-react";
+import { Loader2, Lock, Plus, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,20 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ImageUploadCropperField } from "@/components/admin/image-upload-cropper-field";
 import {
   useCreateCandidate,
   useUpdateCandidate,
   type CandidateFormInput,
 } from "@/hooks/use-candidates";
 import { cn } from "@/lib/utils";
-import type { ApiResponse, CandidateDTO, CandidateTheme } from "@/types/votera";
-
-const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
-const ALLOWED_PHOTO_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
+import type { CandidateDTO, CandidateTheme } from "@/types/votera";
 
 const THEME_OPTIONS: Array<{
   value: CandidateTheme;
@@ -283,14 +276,7 @@ export function CandidateFormDialog({
   const isEditMode = Boolean(candidate);
   const createCandidate = useCreateCandidate(electionId);
   const updateCandidate = useUpdateCandidate(electionId);
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [uploadError, setUploadError] = React.useState<string | null>(null);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [localPreviewUrl, setLocalPreviewUrl] = React.useState<string | null>(
-    null
-  );
 
   const {
     register,
@@ -308,127 +294,17 @@ export function CandidateFormDialog({
   React.useEffect(() => {
     if (open) {
       reset(getDefaultValues(candidate, nextCandidateNumber));
-      setUploadError(null);
       setSubmitError(null);
-      setLocalPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
     }
   }, [open, candidate, nextCandidateNumber, reset]);
-
-  React.useEffect(() => {
-    return () => {
-      if (localPreviewUrl) {
-        URL.revokeObjectURL(localPreviewUrl);
-      }
-    };
-  }, [localPreviewUrl]);
 
   const watchedPhotoUrl = watch("photoUrl");
   const watchedNumber = watch("candidateNumber");
   const isSubmitting = createCandidate.isPending || updateCandidate.isPending;
-
-  const previewSrc =
-    localPreviewUrl ||
-    (watchedPhotoUrl && watchedPhotoUrl.trim().length > 0
-      ? watchedPhotoUrl
-      : getFallbackPortrait(Number(watchedNumber) || 1));
-
-  const hasCustomPhoto = Boolean(localPreviewUrl || watchedPhotoUrl);
-
-  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-
-    setUploadError(null);
-
-    if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
-      const msg = "Format foto harus JPG, PNG, atau WebP.";
-      setUploadError(msg);
-      toast.error(msg);
-      return;
-    }
-
-    if (file.size > MAX_PHOTO_BYTES) {
-      const msg = "Ukuran file melebihi batas maksimal 2MB.";
-      setUploadError(msg);
-      toast.error(msg);
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    setLocalPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return objectUrl;
-    });
-
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const json = (await res.json().catch(() => null)) as
-        | (ApiResponse<{ url: string }> & { url?: string })
-        | { url?: string }
-        | null;
-
-      let uploadedUrl: string | undefined;
-      if (json && "success" in json) {
-        if (!res.ok || !json.success) {
-          throw new Error(
-            !json.success ? json.error.message : "Gagal mengunggah foto"
-          );
-        }
-        uploadedUrl = json.data?.url ?? json.url;
-      } else if (res.ok && json && "url" in json && typeof json.url === "string") {
-        uploadedUrl = json.url;
-      }
-
-      if (!res.ok || !uploadedUrl) {
-        throw new Error("Gagal mengunggah foto kandidat");
-      }
-
-      setValue("photoUrl", uploadedUrl, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-      setLocalPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      toast.success("Foto kandidat berhasil diunggah");
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal mengunggah foto kandidat";
-      setUploadError(message);
-      setLocalPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      toast.error(message);
-    } finally {
-      setIsUploading(false);
-    }
-  }
-
-  function handleRemovePhoto() {
-    setUploadError(null);
-    setLocalPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
-    setValue("photoUrl", null, { shouldDirty: true, shouldValidate: true });
-  }
+  const hasVotes = Boolean(candidate && (candidate.votesCount ?? 0) > 0);
 
   async function onSubmit(values: CandidateFormValues) {
-    if (isUploading || isSubmitting) return;
+    if (isSubmitting) return;
     setSubmitError(null);
 
     const payload: CandidateFormInput = {
@@ -466,7 +342,7 @@ export function CandidateFormDialog({
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
-        if (!isSubmitting && !isUploading) {
+        if (!isSubmitting) {
           onOpenChange(nextOpen);
         }
       }}
@@ -492,98 +368,73 @@ export function CandidateFormDialog({
             </div>
           )}
 
-          {/* Foto Kandidat (4:5 Preview + Upload) */}
-          <div className="flex flex-col gap-4 rounded-[12px] border border-[#E2E8F0] bg-[#F8FAFC] p-4 sm:flex-row sm:items-center">
-            <div className="relative aspect-[4/5] w-[104px] shrink-0 overflow-hidden rounded-[12px] border border-[#E2E8F0] bg-white">
-              <Image
-                src={previewSrc}
-                alt="Pratinjau foto kandidat"
-                fill
-                sizes="104px"
-                className="object-cover"
-                unoptimized
-              />
-              {isUploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/45 text-white">
-                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 space-y-2">
-              <div>
-                <p className="text-[13px] font-semibold text-[#0F172A]">
-                  Foto Kandidat
+          {hasVotes && (
+            <div
+              role="alert"
+              className="flex items-start gap-2.5 rounded-[10px] border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-900 shadow-xs"
+            >
+              <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold">
+                  Kandidat Memiliki Perolehan Suara ({candidate?.votesCount} Suara Masuk)
                 </p>
-                <p className="text-xs text-[#64748B]">
-                  Format JPG, PNG, atau WebP dengan ukuran maksimal 2MB. Jika
-                  tidak diunggah, foto placeholder bawaan akan digunakan.
+                <p className="text-[11px] text-amber-700">
+                  Nomor urut dan status keaktifan dikunci demi integritas surat suara pemilih. Anda tetap dapat mengoreksi typo nama, kelas, visi-misi, atau foto kandidat.
                 </p>
               </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isUploading || isSubmitting}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {isUploading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-                  )}
-                  <span>{isUploading ? "Mengunggah..." : "Pilih Foto"}</span>
-                </Button>
-
-                {hasCustomPhoto && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={isUploading || isSubmitting}
-                    onClick={handleRemovePhoto}
-                    className="h-8 px-2.5 text-xs text-[#64748B] hover:text-[#DC2626]"
-                  >
-                    <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span>Gunakan default</span>
-                  </Button>
-                )}
-              </div>
-
-              {uploadError && (
-                <p className="text-xs font-medium text-[#DC2626]">
-                  {uploadError}
-                </p>
-              )}
             </div>
-          </div>
+          )}
+
+          {/* Foto Resmi Paslon / Kandidat (4:5 Crop & Upload) */}
+          <ImageUploadCropperField
+            id="candidate-photo"
+            label="Foto Resmi Paslon / Kandidat"
+            description="Format JPG, PNG, atau WebP (maksimal 10MB). Pemotong foto otomatis rasio 4:5 potret resmi dengan auto-compress."
+            value={watchedPhotoUrl}
+            onChange={(url) =>
+              setValue("photoUrl", url, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+            aspectRatio={4 / 5}
+            aspectLabel="4:5 (Potret Resmi)"
+            previewAspectClassName="aspect-[4/5] w-[104px]"
+            previewObjectFit="cover"
+            targetMaxWidth={1200}
+            targetMaxHeight={1500}
+            preferredMimeType="image/webp"
+            fallbackSrc={getFallbackPortrait(Number(watchedNumber) || 1)}
+            placeholderUrl="https://... atau /uploads/candidates/..."
+            electionId={electionId}
+            disabled={isSubmitting}
+          />
 
           {/* Identitas Dasar */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
             <div className="space-y-1.5 sm:col-span-1">
               <label
                 htmlFor="candidateNumber"
-                className="text-[13px] font-semibold text-[#0F172A]"
+                className="flex items-center justify-between text-[13px] font-semibold text-[#0F172A]"
               >
-                Nomor Urut<span className="ml-0.5 text-[#DC2626]">*</span>
+                <span>
+                  Nomor Urut<span className="ml-0.5 text-[#DC2626]">*</span>
+                </span>
+                {hasVotes && (
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-amber-600">
+                    <Lock className="h-3 w-3" /> Dikunci
+                  </span>
+                )}
               </label>
               <Input
                 id="candidateNumber"
                 type="number"
                 min={1}
                 max={99}
+                disabled={hasVotes || isSubmitting}
                 className={cn(
                   "tabular-nums",
+                  hasVotes && "bg-slate-50 cursor-not-allowed opacity-80",
                   errors.candidateNumber &&
                     "border-[#DC2626] bg-[#FEF2F2] focus-visible:border-[#DC2626]"
                 )}
@@ -704,8 +555,13 @@ export function CandidateFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[13px] font-semibold text-[#0F172A]">
-                Status Keaktifan
+              <label className="flex items-center justify-between text-[13px] font-semibold text-[#0F172A]">
+                <span>Status Keaktifan</span>
+                {hasVotes && (
+                  <span className="flex items-center gap-1 text-[11px] font-normal text-amber-600">
+                    <Lock className="h-3 w-3" /> Dikunci
+                  </span>
+                )}
               </label>
               <Controller
                 control={control}
@@ -714,8 +570,12 @@ export function CandidateFormDialog({
                   <Select
                     value={field.value ? "active" : "inactive"}
                     onValueChange={(val) => field.onChange(val === "active")}
+                    disabled={hasVotes || isSubmitting}
                   >
-                    <SelectTrigger aria-label="Pilih status keaktifan">
+                    <SelectTrigger
+                      aria-label="Pilih status keaktifan"
+                      className={cn(hasVotes && "bg-slate-50 cursor-not-allowed opacity-80")}
+                    >
                       <SelectValue placeholder="Pilih status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -791,12 +651,15 @@ export function CandidateFormDialog({
             <Button
               type="button"
               variant="outline"
-              disabled={isSubmitting || isUploading}
+              disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
             >
               Batal
             </Button>
-            <Button type="submit" disabled={isSubmitting || isUploading}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting && (
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}

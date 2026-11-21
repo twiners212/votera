@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
+import { desc, eq } from "drizzle-orm";
 import { db, elections } from "@/db";
+import { getVoterSession } from "@/lib/auth/voter-session";
 import { VoterLoginForm } from "@/components/voter/voter-login-form";
 import type { ElectionStatus } from "@/types/votera";
 
@@ -37,6 +39,7 @@ async function getActiveElectionLoginConfig(): Promise<ActiveElectionLoginConfig
   try {
     const activeElection = await db.query.elections.findFirst({
       where: eq(elections.isActive, true),
+      orderBy: [desc(elections.createdAt)],
       with: {
         settings: true,
       },
@@ -66,10 +69,22 @@ async function getActiveElectionLoginConfig(): Promise<ActiveElectionLoginConfig
 }
 
 export default async function VoterLoginPage() {
-  const config = await getActiveElectionLoginConfig();
+  const [voter, config] = await Promise.all([
+    getVoterSession(),
+    getActiveElectionLoginConfig(),
+  ]);
+
+  if (voter) {
+    if (voter.hasVoted) {
+      redirect("/vote/thanks");
+    }
+    if (!config.electionId || voter.electionId === config.electionId) {
+      redirect("/vote");
+    }
+  }
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#F8FAFC] p-0 sm:px-4 sm:py-8">
+    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#F8FAFC] p-0 sm:p-4 lg:p-8">
       <VoterLoginForm
         electionId={config.electionId}
         idLabel={config.idLabel}

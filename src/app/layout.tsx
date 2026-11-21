@@ -22,6 +22,17 @@ export const metadata: Metadata = {
   title: "Votera — PILKETOS 2026 SMA Bojong Gede",
   description:
     "Platform E-Voting dan Pemilihan Online Multi-Instansi yang aman, transparan, dan rahasia.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({

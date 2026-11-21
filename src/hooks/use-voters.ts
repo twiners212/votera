@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/query-keys";
+import { queryKeys, invalidateElectionScopes } from "@/lib/query-keys";
 import type {
   ApiResponse,
   VoterDTO,
@@ -54,6 +54,15 @@ export interface BulkImportVotersResult {
     voterIdentity: string;
     reason: string;
   }>;
+}
+
+export interface BulkDeleteVotersInput {
+  voterIds?: string[];
+  allNotVoted?: boolean;
+}
+
+export interface BulkDeleteVotersResult {
+  deletedCount: number;
 }
 
 export function useVoters(
@@ -127,12 +136,11 @@ function useInvalidateVoterQueries(electionId: string) {
   const queryClient = useQueryClient();
 
   return async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: queryKeys.voters.all(electionId) }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.election.dashboard(electionId),
-      }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.logs.all(electionId) }),
+    await invalidateElectionScopes(queryClient, electionId, [
+      "voters",
+      "dashboard",
+      "results",
+      "logs",
     ]);
   };
 }
@@ -230,8 +238,39 @@ export function useResetVoterToken(electionId: string) {
   });
 }
 
+export function useCopyVoterToken(electionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { voterId: string; voterIdentity: string; token: string },
+    Error,
+    string
+  >({
+    mutationFn: async (voterId) => {
+      const res = await fetch(
+        `/api/admin/voters/${encodeURIComponent(voterId)}/copy-token`,
+        { method: "POST" }
+      );
+      const json = (await res.json().catch(() => null)) as ApiResponse<{
+        voterId: string;
+        voterIdentity: string;
+        token: string;
+      }> | null;
+      if (!res.ok || !json || !json.success) {
+        throw new Error(
+          json && !json.success ? json.error.message : "Gagal menyalin token pemilih"
+        );
+      }
+      return json.data;
+    },
+    onSuccess: async () => {
+      await invalidateElectionScopes(queryClient, electionId, ["logs"]);
+    },
+  });
+}
+
 export function useImportVoters(electionId: string) {
-  const invalidate = useInvalidateVoterQueries(electionId);
+  const queryClient = useQueryClient();
 
   return useMutation<BulkImportVotersResult, Error, BulkImportVotersInput>({
     mutationFn: async (payload) => {
@@ -250,6 +289,47 @@ export function useImportVoters(electionId: string) {
       }
       return json.data;
     },
-    onSuccess: invalidate,
+    onSuccess: async () => {
+      await invalidateElectionScopes(queryClient, electionId, [
+        "voters",
+        "dashboard",
+        "results",
+        "master",
+        "logs",
+      ]);
+    },
+  });
+}
+
+export function useBulkDeleteVoters(electionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<BulkDeleteVotersResult, Error, BulkDeleteVotersInput>({
+    mutationFn: async (payload) => {
+      const res = await fetch("/api/admin/voters", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, electionId }),
+      });
+      const json = (await res
+        .json()
+        .catch(() => null)) as ApiResponse<BulkDeleteVotersResult> | null;
+      if (!res.ok || !json || !json.success) {
+        throw new Error(
+          json && !json.success
+            ? json.error.message
+            : "Gagal menghapus pemilih secara massal"
+        );
+      }
+      return json.data;
+    },
+    onSuccess: async () => {
+      await invalidateElectionScopes(queryClient, electionId, [
+        "voters",
+        "dashboard",
+        "results",
+        "logs",
+      ]);
+    },
   });
 }

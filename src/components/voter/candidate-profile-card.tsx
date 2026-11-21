@@ -37,11 +37,11 @@ export function CandidateProfileCard({
   return (
     <article
       className={cn(
-        "group flex flex-row items-stretch overflow-hidden rounded-[16px] border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_4px_12px_-2px_rgba(15,23,42,0.06)]",
+        "group flex h-full flex-row items-stretch overflow-hidden rounded-[16px] border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_20px_-4px_rgba(15,23,42,0.08)]",
         className
       )}
     >
-      <div className="relative aspect-[3/4] w-[36%] min-w-[122px] max-w-[196px] shrink-0 overflow-hidden bg-[#F1F5F9] sm:w-[38%]">
+      <div className="relative aspect-[3/4] w-[36%] min-w-[122px] max-w-[196px] shrink-0 overflow-hidden rounded-l-[16px] bg-[#F1F5F9] sm:w-[35%] lg:w-[32%] lg:max-w-[190px]">
         <span className="absolute left-2.5 top-2.5 z-20 inline-flex items-center rounded-[8px] bg-[#D93829] px-2.5 py-1 text-xs font-extrabold tracking-wide text-white shadow-sm tabular-nums">
           #{candidate.candidateNumber}
         </span>
@@ -55,13 +55,13 @@ export function CandidateProfileCard({
           src={resolvedPhoto}
           alt={`Foto ${candidate.name}`}
           fill
-          sizes="(max-width: 640px) 38vw, 196px"
-          className="relative z-10 object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
+          sizes="(max-width: 640px) 36vw, (max-width: 1024px) 196px, 190px"
+          className="relative z-10 object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
           unoptimized
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col justify-between p-3.5 sm:p-4">
+      <div className="flex min-w-0 flex-1 flex-col justify-between p-4 sm:p-5">
         <div>
           <div className="flex items-start justify-between gap-2">
             <h3 className="text-sm font-bold leading-snug text-[#0F172A] sm:text-base">
@@ -74,7 +74,7 @@ export function CandidateProfileCard({
             )}
           </div>
 
-          <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-relaxed text-[#64748B]">
+          <p className="mt-1 line-clamp-2 text-xs font-medium leading-relaxed text-[#64748B]">
             {candidate.motto}
           </p>
 
@@ -86,12 +86,15 @@ export function CandidateProfileCard({
               {displayedMissions.map((mission, index) => (
                 <li
                   key={`${candidate.id}-mission-${index}`}
+                  title={mission}
                   className={cn(
-                    "rounded-[14px] border px-3 py-1.5 text-[11px] font-semibold leading-snug sm:text-xs",
+                    "group/pill flex items-start rounded-xl border px-3 py-1.5 transition-colors sm:px-3.5 sm:py-2",
                     pillClasses
                   )}
                 >
-                  {mission}
+                  <span className="line-clamp-2 text-[11.5px] font-medium leading-[1.4] text-pretty break-words sm:text-[12.5px]">
+                    {mission}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -101,11 +104,14 @@ export function CandidateProfileCard({
         <Button
           asChild
           variant="outline"
-          className="mt-3.5 min-h-[44px] w-full rounded-[12px] border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] sm:text-sm"
+          className="mt-3.5 h-[44px] min-h-[44px] w-full rounded-[12px] border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:border-[#CBD5E1] hover:bg-[#F8FAFC] sm:text-sm"
         >
           <Link href={`/candidates/${candidate.id}`}>
             <span>Lihat Profil</span>
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1"
+              aria-hidden="true"
+            />
           </Link>
         </Button>
       </div>

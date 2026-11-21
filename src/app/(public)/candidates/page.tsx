@@ -6,7 +6,7 @@ import { db, candidates, electionSettings, elections } from "@/db";
 import { CurvedRedFooter } from "@/components/shared/curved-red-footer";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { CandidateProfileCard } from "@/components/voter/candidate-profile-card";
+import { CandidateShowcaseGrid } from "@/components/voter/candidate-showcase-grid";
 import { PublicNavbar } from "@/components/voter/public-navbar";
 import type { CandidateDTO, ElectionStatus } from "@/types/votera";
 
@@ -121,7 +121,7 @@ export default async function CandidatesPage() {
 
       <main className="flex-1">
         <section className="border-b border-[#E2E8F0] bg-[#FFF5F3]">
-          <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9">
+          <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
             <Link
               href="/"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#475569] transition-colors hover:text-[#0F172A] sm:text-sm"
@@ -145,25 +145,25 @@ export default async function CandidatesPage() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="inline-flex items-center gap-2.5 rounded-[12px] border border-[#E2E8F0] bg-white px-4 py-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF0EE] text-[#D93829]">
-                    <Users className="h-4 w-4" aria-hidden="true" />
+                <div className="inline-flex h-11 items-center gap-2.5 rounded-[12px] border border-[#E2E8F0] bg-white px-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FFF0EE] text-[#D93829]">
+                    <Users className="h-3.5 w-3.5" aria-hidden="true" />
                   </span>
-                  <div>
-                    <div className="text-base font-extrabold leading-none text-[#0F172A] tabular-nums">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-base font-extrabold leading-none text-[#0F172A] tabular-nums">
                       {data.candidates.length}
-                    </div>
-                    <div className="mt-0.5 text-[11px] font-semibold text-[#64748B]">
+                    </span>
+                    <span className="text-xs font-semibold text-[#64748B]">
                       Calon aktif
-                    </div>
+                    </span>
                   </div>
                 </div>
 
                 <Button
                   asChild
-                  className="min-h-[44px] rounded-[12px] bg-[#D93829] px-5 text-sm font-semibold text-white shadow-[0_6px_16px_-4px_rgba(217,56,41,0.35)] hover:bg-[#B8281B]"
+                  className="h-11 min-h-[44px] rounded-[12px] bg-[#D93829] px-5 text-sm font-semibold text-white shadow-[0_6px_16px_-4px_rgba(217,56,41,0.35)] transition-transform active:scale-[0.99] hover:bg-[#B8281B]"
                 >
-                  <Link href="/login">
+                  <Link href="/login" className="inline-flex items-center gap-2">
                     <Inbox className="h-4 w-4" aria-hidden="true" />
                     <span>Masuk untuk memilih</span>
                   </Link>
@@ -175,17 +175,10 @@ export default async function CandidatesPage() {
 
         <section
           aria-label="Daftar profil kandidat"
-          className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10"
+          className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
         >
           {data.candidates.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
-              {data.candidates.map((candidate) => (
-                <CandidateProfileCard
-                  key={candidate.id}
-                  candidate={candidate}
-                />
-              ))}
-            </div>
+            <CandidateShowcaseGrid candidates={data.candidates} />
           ) : (
             <div className="rounded-[16px] border border-[#E2E8F0] bg-white">
               <EmptyState

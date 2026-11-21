@@ -44,7 +44,13 @@ export function BrandHeader({
   const isDark = variant === "onDark";
 
   const content = (
-    <div className={cn("flex items-center gap-3 min-w-0", className)}>
+    <div
+      className={cn(
+        "flex items-center gap-3 min-w-0 max-w-full overflow-hidden",
+        className
+      )}
+      title={`${shortName} — ${organizationName}`}
+    >
       <div
         className={cn(
           "relative shrink-0 overflow-hidden rounded-full border shadow-sm",
@@ -63,8 +69,9 @@ export function BrandHeader({
           unoptimized
         />
       </div>
-      <div className="min-w-0 leading-tight">
+      <div className="min-w-0 flex-1 overflow-hidden leading-tight">
         <div
+          title={shortName}
           className={cn(
             "truncate font-extrabold tracking-tight",
             isSmall ? "text-[13px]" : "text-sm sm:text-[15px]",
@@ -82,6 +89,7 @@ export function BrandHeader({
           )}
         </div>
         <div
+          title={organizationName}
           className={cn(
             "truncate font-medium",
             isSmall ? "text-[11px]" : "text-xs",
@@ -98,7 +106,7 @@ export function BrandHeader({
     return (
       <Link
         href={href}
-        className="inline-flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30"
+        className="flex w-full min-w-0 max-w-full items-center overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30"
       >
         {content}
       </Link>

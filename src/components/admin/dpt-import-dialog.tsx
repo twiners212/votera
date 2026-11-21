@@ -37,6 +37,7 @@ import {
   type ImportVoterRowInput,
   useImportVoters,
 } from "@/hooks/use-voters";
+import { parseDptBuffer, type ImportRowError } from "@/lib/importers/dpt-parser";
 import { cn } from "@/lib/utils";
 
 export interface DptImportDialogProps {
@@ -49,148 +50,7 @@ export interface DptImportDialogProps {
   majorLabel?: string;
 }
 
-interface ImportRowError {
-  rowNumber: number;
-  voterIdentity: string;
-  reason: string;
-}
 
-function normalizeHeader(header: string): string {
-  return header
-    .trim()
-    .toLowerCase()
-    .replace(/[\s\-_]+/g, "");
-}
-
-function extractField(
-  record: Record<string, unknown>,
-  candidates: string[]
-): string {
-  const entries = Object.entries(record);
-  for (const candidate of candidates) {
-    const target = normalizeHeader(candidate);
-    const match = entries.find(([key]) => normalizeHeader(key) === target);
-    if (match && match[1] !== undefined && match[1] !== null) {
-      return String(match[1]).trim();
-    }
-  }
-  return "";
-}
-
-function validateParsedRows(
-  rawRows: Array<Record<string, unknown>>,
-  labels: {
-    idLabel: string;
-    groupLabel: string;
-    gradeLabel: string;
-    majorLabel: string;
-  }
-): {
-  validRows: ImportVoterRowInput[];
-  localErrors: ImportRowError[];
-} {
-  const validRows: ImportVoterRowInput[] = [];
-  const localErrors: ImportRowError[] = [];
-  const seenIdentities = new Set<string>();
-
-  rawRows.forEach((raw, index) => {
-    const rowNumber = index + 2; // +1 header, +1 1-indexed
-    const voterIdentity = extractField(raw, [
-      labels.idLabel,
-      "nis",
-      "voterIdentity",
-      "voter_identity",
-      "identitas",
-      "nomor_induk",
-      "id",
-    ]);
-    const name = extractField(raw, ["nama", "name", "nama_lengkap", "fullname"]);
-    const groupName = extractField(raw, [
-      labels.groupLabel,
-      "rombel",
-      "kelas",
-      "groupName",
-      "group_name",
-      "group",
-    ]);
-    const gradeName = extractField(raw, [
-      labels.gradeLabel,
-      "tingkat",
-      "gradeName",
-      "grade_name",
-      "grade",
-    ]);
-    const majorName = extractField(raw, [
-      labels.majorLabel,
-      "jurusan",
-      "majorName",
-      "major_name",
-      "major",
-    ]);
-
-    // Skip completely empty lines
-    if (!voterIdentity && !name && !groupName) {
-      return;
-    }
-
-    if (!voterIdentity) {
-      localErrors.push({
-        rowNumber,
-        voterIdentity: "-",
-        reason: `${labels.idLabel} wajib diisi`,
-      });
-      return;
-    }
-
-    if (/^[=+\-@]/.test(voterIdentity) || /^[=+\-@]/.test(name)) {
-      localErrors.push({
-        rowNumber,
-        voterIdentity,
-        reason: "Karakter awal (=, +, -, @) tidak diizinkan",
-      });
-      return;
-    }
-
-    if (name.length < 2) {
-      localErrors.push({
-        rowNumber,
-        voterIdentity,
-        reason: "Nama pemilih minimal 2 karakter",
-      });
-      return;
-    }
-
-    if (!groupName) {
-      localErrors.push({
-        rowNumber,
-        voterIdentity,
-        reason: `${labels.groupLabel} wajib diisi`,
-      });
-      return;
-    }
-
-    const identityKey = voterIdentity.toLowerCase();
-    if (seenIdentities.has(identityKey)) {
-      localErrors.push({
-        rowNumber,
-        voterIdentity,
-        reason: `${labels.idLabel} duplikat di dalam file`,
-      });
-      return;
-    }
-    seenIdentities.add(identityKey);
-
-    validRows.push({
-      voterIdentity,
-      name,
-      groupName,
-      ...(gradeName ? { gradeName } : {}),
-      ...(majorName ? { majorName } : {}),
-    });
-  });
-
-  return { validRows, localErrors };
-}
 
 export function DptImportDialog({
   open,
@@ -251,46 +111,19 @@ export function DptImportDialog({
       return;
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      setParseError("Ukuran file melebihi batas maksimal 5 MB.");
+      return;
+    }
+
     setIsParsing(true);
     setSelectedFileName(file.name);
 
     try {
-      let rawRecords: Array<Record<string, unknown>> = [];
-
-      if (isCsv) {
-        const text = await file.text();
-        const result = Papa.parse<Record<string, unknown>>(text, {
-          header: true,
-          skipEmptyLines: true,
-          transformHeader: (h) => h.trim(),
-        });
-
-        if (result.errors.length > 0 && result.data.length === 0) {
-          throw new Error(
-            result.errors[0]?.message || "File CSV tidak dapat dibaca"
-          );
-        }
-        rawRecords = result.data;
-      } else {
-        const buffer = await file.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const firstSheetName = workbook.SheetNames[0];
-        if (!firstSheetName) {
-          throw new Error("Worksheet Excel kosong atau tidak ditemukan");
-        }
-        const sheet = workbook.Sheets[firstSheetName];
-        rawRecords = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-          defval: "",
-        });
-      }
-
-      if (rawRecords.length === 0) {
-        setParseError("File tidak memiliki baris data pemilih.");
-        return;
-      }
-
-      const { validRows, localErrors: rowErrors } = validateParsedRows(
-        rawRecords,
+      const buffer = await file.arrayBuffer();
+      const { validRows, localErrors: rowErrors } = await parseDptBuffer(
+        buffer,
+        file.name,
         { idLabel, groupLabel, gradeLabel, majorLabel }
       );
 

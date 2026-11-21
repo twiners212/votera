@@ -1,9 +1,11 @@
-import { db } from "@/db";
+import { db, dbPool } from "@/db";
 import { auditLogs } from "@/db/schema";
 
 export type AuditActorType = "admin" | "voter" | "system";
 
-export type AuditDbExecutor = Pick<typeof db, "insert">;
+export type AuditDbExecutor =
+  | Pick<typeof db, "insert">
+  | Pick<typeof dbPool, "insert">;
 
 export interface InsertAuditLogParams {
   electionId: string;

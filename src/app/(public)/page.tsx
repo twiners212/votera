@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { db, candidates, electionSettings, elections } from "@/db";
 import { CurvedRedFooter } from "@/components/shared/curved-red-footer";
 import { EmptyState } from "@/components/shared/empty-state";
-import { CandidateProfileCard } from "@/components/voter/candidate-profile-card";
+import { CandidateShowcaseGrid } from "@/components/voter/candidate-showcase-grid";
 import { LandingHero } from "@/components/voter/landing-hero";
 import { PublicNavbar } from "@/components/voter/public-navbar";
 import type { CandidateDTO, ElectionStatus } from "@/types/votera";
@@ -139,7 +139,7 @@ export default async function HomePage() {
 
         <section
           aria-labelledby="candidate-showcase-heading"
-          className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10"
+          className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:py-12"
         >
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -166,14 +166,7 @@ export default async function HomePage() {
           </div>
 
           {data.candidates.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
-              {data.candidates.map((candidate) => (
-                <CandidateProfileCard
-                  key={candidate.id}
-                  candidate={candidate}
-                />
-              ))}
-            </div>
+            <CandidateShowcaseGrid candidates={data.candidates} />
           ) : (
             <div className="rounded-[16px] border border-[#E2E8F0] bg-white">
               <EmptyState

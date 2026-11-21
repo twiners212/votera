@@ -97,12 +97,28 @@ export function CandidateDetailView({
         />
       </div>
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 pb-14 sm:px-6">
-        {/* Back Link & Candidate Header */}
-        <section className="-mt-4 pb-5 sm:-mt-6 sm:pb-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-14 sm:px-6 lg:px-8">
+        {/* Desktop Top Breadcrumb Navigation */}
+        <div className="hidden pt-6 pb-4 lg:block">
           <Link
             href="/candidates"
-            className="group mb-3 inline-flex min-h-[36px] items-center gap-1.5 text-xs font-semibold text-[#64748B] transition-colors hover:text-[#D93829] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30 sm:text-sm"
+            className="group inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[#64748B] transition-colors hover:text-[#D93829] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30"
+          >
+            <span
+              aria-hidden="true"
+              className="transition-transform group-hover:-translate-x-1"
+            >
+              ←
+            </span>
+            <span>Semua kandidat</span>
+          </Link>
+        </div>
+
+        {/* Mobile Header: Back Link & Candidate Heading (< lg) */}
+        <section className="pt-2 pb-5 sm:pt-4 sm:pb-6 lg:hidden">
+          <Link
+            href="/candidates"
+            className="group mb-3.5 inline-flex min-h-[44px] items-center gap-1.5 py-1.5 text-xs font-semibold text-[#64748B] transition-colors hover:text-[#D93829] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30 sm:text-sm"
           >
             <span
               aria-hidden="true"
@@ -131,10 +147,10 @@ export function CandidateDetailView({
           </p>
         </section>
 
-        {/* Framed Portrait Card */}
+        {/* Mobile Framed Portrait Card (< lg) */}
         <section
           aria-label={`Profil ${candidate.name}`}
-          className="mb-5 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5"
+          className="mb-5 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5 lg:hidden"
         >
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="relative mx-auto aspect-[4/5] w-full max-w-[240px] shrink-0 overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#FAF9F7] sm:mx-0 sm:w-52">
@@ -215,101 +231,242 @@ export function CandidateDetailView({
           </div>
         </section>
 
-        {/* Visi, Misi, Program Kerja, Pendukung Cards */}
-        <div className="space-y-4">
-          {/* Visi */}
-          <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
-            <SectionHeading title="Visi" />
-            <p className="text-sm leading-relaxed text-[#334155] sm:text-[15px]">
-              {candidate.vision}
-            </p>
-          </section>
+        {/* Desktop 2-Column Asymmetric Layout (lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start) */}
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
+          {/* Left Column (~38% / lg:col-span-5 lg:sticky lg:top-24 space-y-5) */}
+          <div className="hidden lg:col-span-5 lg:sticky lg:top-24 lg:block space-y-5">
+            {/* Framed Portrait Photo (aspect ratio 4:5, crisp border, candidate number badge with tabular-nums, name, class/unit badge, motto) */}
+            <section
+              aria-label={`Profil ${candidate.name}`}
+              className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+            >
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-[#E2E8F0] bg-[#FAF9F7]">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-y-0 right-0 w-32 translate-x-6 skew-x-12 bg-gradient-to-tr from-transparent via-[#D93829]/15 to-[#D93829]/30"
+                />
+                <span className="absolute left-3 top-3 z-20 inline-flex h-8 min-w-[38px] items-center justify-center rounded-lg bg-[#D93829] px-2.5 text-sm font-extrabold text-white shadow-sm tabular-nums">
+                  #{candidate.candidateNumber}
+                </span>
+                <Image
+                  src={portraitSrc}
+                  alt={`Foto kandidat nomor ${candidate.candidateNumber} ${candidate.name}`}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 420px, 100vw"
+                  className="relative z-10 object-cover object-top"
+                  unoptimized
+                />
+              </div>
 
-          {/* Misi */}
-          <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
-            <SectionHeading title="Misi" />
-            {candidate.missions.length > 0 ? (
-              <ul className="space-y-3">
-                {candidate.missions.map((mission, index) => (
-                  <li
-                    key={`${index}-${mission}`}
-                    className="flex items-start gap-3 text-sm leading-relaxed text-[#334155] sm:text-[15px]"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF0EE] text-[#D93829]"
+              <div className="mt-5 space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusPill status="active" label="Kandidat Aktif" size="sm" />
+                  <span className="inline-flex items-center rounded-full bg-[#F1F5F9] px-2.5 py-0.5 text-xs font-semibold text-[#334155]">
+                    {candidate.classOrUnit}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+                    {election.title}
+                  </div>
+                  <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#0F172A]">
+                    {candidate.name}
+                  </h1>
+                  <p className="mt-1.5 text-sm italic leading-relaxed text-[#64748B]">
+                    &ldquo;{candidate.motto}&rdquo;
+                  </p>
+                </div>
+
+                {/* 3 Metrics Grid: Misi, Program, Pendukung with tabular-nums */}
+                <div className="grid grid-cols-3 gap-2 border-t border-[#F1F5F9] pt-3.5">
+                  <div className="rounded-xl bg-[#F8FAFC] px-3 py-2.5 text-center">
+                    <div className="text-lg font-extrabold text-[#0F172A] tabular-nums">
+                      {candidate.missions.length}
+                    </div>
+                    <div className="text-[11px] font-medium text-[#64748B]">
+                      Misi
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-[#F8FAFC] px-3 py-2.5 text-center">
+                    <div className="text-lg font-extrabold text-[#0F172A] tabular-nums">
+                      {candidate.programs.length}
+                    </div>
+                    <div className="text-[11px] font-medium text-[#64748B]">
+                      Program
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-[#F8FAFC] px-3 py-2.5 text-center">
+                    <div className="text-lg font-extrabold text-[#0F172A] tabular-nums">
+                      {candidate.supporters.length}
+                    </div>
+                    <div className="text-[11px] font-medium text-[#64748B]">
+                      Pendukung
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* DAFTAR PENDUKUNG (Supporter Pills): Place supporter pills HERE in left column under portrait and metrics */}
+            <section
+              aria-label="Daftar Pendukung"
+              className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+            >
+              <SectionHeading title="Daftar Pendukung" />
+              {candidate.supporters.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {candidate.supporters.map((supporter, index) => (
+                    <li
+                      key={`desktop-supporter-${index}-${supporter}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-semibold text-[#334155]"
                     >
-                      <Check className="h-3.5 w-3.5 stroke-[2.5]" />
-                    </span>
-                    <span>{mission}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-[#64748B]">
-                Belum ada misi yang dicantumkan.
-              </p>
-            )}
-          </section>
-
-          {/* Program Kerja */}
-          <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
-            <SectionHeading title="Program Kerja" />
-            {candidate.programs.length > 0 ? (
-              <ol className="space-y-2.5">
-                {candidate.programs.map((program, index) => (
-                  <li
-                    key={`${index}-${program}`}
-                    className="flex items-start gap-3 rounded-xl border border-[#F1F5F9] bg-[#F8FAFC] px-3.5 py-3 text-sm leading-relaxed text-[#334155] sm:text-[15px]"
-                  >
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#FFF0EE] text-xs font-extrabold text-[#D93829] tabular-nums">
-                      {index + 1}
-                    </span>
-                    <div className="flex flex-1 items-start justify-between gap-2">
-                      <span>{program}</span>
-                      <ClipboardList
-                        className="mt-0.5 h-4 w-4 shrink-0 text-[#94A3B8]"
+                      <Users
+                        className="h-3.5 w-3.5 shrink-0 text-[#D93829]"
                         aria-hidden="true"
                       />
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-sm text-[#64748B]">
-                Belum ada program kerja yang dicantumkan.
-              </p>
-            )}
-          </section>
+                      <span>{supporter}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[#64748B]">
+                  Belum ada daftar pendukung yang dicantumkan.
+                </p>
+              )}
+            </section>
 
-          {/* Pendukung */}
-          <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
-            <SectionHeading title="Pendukung" />
-            {candidate.supporters.length > 0 ? (
-              <ul className="flex flex-wrap gap-2">
-                {candidate.supporters.map((supporter, index) => (
-                  <li
-                    key={`${index}-${supporter}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-1.5 text-xs font-semibold text-[#334155] sm:text-sm"
-                  >
-                    <Users
-                      className="h-3.5 w-3.5 shrink-0 text-[#D93829]"
-                      aria-hidden="true"
-                    />
-                    <span>{supporter}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-[#64748B]">
-                Belum ada daftar pendukung yang dicantumkan.
+            {/* Direct Voting Action CTA button */}
+            <Button
+              asChild
+              size="lg"
+              className="min-h-[48px] w-full rounded-xl bg-[#D93829] px-6 text-sm font-bold text-white shadow-[0_6px_16px_-4px_rgba(200,50,43,0.35)] hover:bg-[#B8281B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/50"
+            >
+              <Link href={ctaHref}>
+                {canGoToBallot ? (
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                ) : null}
+                <span>{ctaLabel}</span>
+                {!canGoToBallot ? (
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                ) : null}
+              </Link>
+            </Button>
+          </div>
+
+          {/* Right Column (~62% / lg:col-span-7 space-y-5) */}
+          <div className="space-y-4 lg:col-span-7 lg:space-y-5">
+            {/* Card Visi: horizontal red bar indicator, clean prose */}
+            <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+              <SectionHeading title="Visi" />
+              <p className="text-sm leading-relaxed text-[#334155] sm:text-[15px]">
+                {candidate.vision}
               </p>
-            )}
-          </section>
+            </section>
+
+            {/* Card Misi: checkmark icons, clean spacing */}
+            <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+              <SectionHeading title="Misi" />
+              {candidate.missions.length > 0 ? (
+                <ul className="space-y-3">
+                  {candidate.missions.map((mission, index) => (
+                    <li
+                      key={`${index}-${mission}`}
+                      className="flex items-start gap-3 text-sm leading-relaxed text-[#334155] sm:text-[15px]"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF0EE] text-[#D93829]"
+                      >
+                        <Check className="h-3.5 w-3.5 stroke-[2.5]" />
+                      </span>
+                      <span>{mission}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[#64748B]">
+                  Belum ada misi yang dicantumkan.
+                </p>
+              )}
+            </section>
+
+            {/* Card Program Kerja: ordered list with tabular number badges 1, 2, 3 and clipboard icon */}
+            <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+              <SectionHeading title="Program Kerja" />
+              {candidate.programs.length > 0 ? (
+                <ol className="space-y-2.5">
+                  {candidate.programs.map((program, index) => (
+                    <li
+                      key={`${index}-${program}`}
+                      className="flex items-start gap-3 rounded-xl border border-[#F1F5F9] bg-[#F8FAFC] px-3.5 py-3 text-sm leading-relaxed text-[#334155] sm:text-[15px]"
+                    >
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#FFF0EE] text-xs font-extrabold text-[#D93829] tabular-nums">
+                        {index + 1}
+                      </span>
+                      <div className="flex flex-1 items-start justify-between gap-2">
+                        <span>{program}</span>
+                        <ClipboardList
+                          className="mt-0.5 h-4 w-4 shrink-0 text-[#94A3B8]"
+                          aria-hidden="true"
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="text-sm text-[#64748B]">
+                  Belum ada program kerja yang dicantumkan.
+                </p>
+              )}
+            </section>
+
+            {/* Mobile-only Supporter Pills Card (< lg) */}
+            <section className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6 lg:hidden">
+              <SectionHeading title="Pendukung" />
+              {candidate.supporters.length > 0 ? (
+                <ul className="flex flex-wrap gap-2">
+                  {candidate.supporters.map((supporter, index) => (
+                    <li
+                      key={`mobile-${index}-${supporter}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 py-1.5 text-xs font-semibold text-[#334155] sm:text-sm"
+                    >
+                      <Users
+                        className="h-3.5 w-3.5 shrink-0 text-[#D93829]"
+                        aria-hidden="true"
+                      />
+                      <span>{supporter}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[#64748B]">
+                  Belum ada daftar pendukung yang dicantumkan.
+                </p>
+              )}
+            </section>
+
+            {/* Desktop Bottom navigation link: "← Semua kandidat" */}
+            <div className="hidden pt-2 lg:block">
+              <Link
+                href="/candidates"
+                className="group inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-[#64748B] transition-colors hover:text-[#D93829] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D93829]/30"
+              >
+                <span
+                  aria-hidden="true"
+                  className="transition-transform group-hover:-translate-x-1"
+                >
+                  ←
+                </span>
+                <span>Semua kandidat</span>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom Voting CTA */}
-        <section className="mt-6 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+        {/* Mobile Bottom Voting CTA (< lg) */}
+        <section className="mt-6 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6 lg:hidden">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-base font-bold text-[#0F172A]">

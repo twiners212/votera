@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Loader2,
   RefreshCw,
+  Trash2,
   Upload,
   UserPlus,
   Users,
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -43,6 +45,7 @@ import {
 } from "@/components/ui/table";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import {
+  useBulkDeleteVoters,
   useDeleteVoter,
   useResetVoterToken,
   useVoters,
@@ -50,6 +53,7 @@ import {
 import { queryKeys } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import type {
+  AdminRole,
   ApiResponse,
   MasterDataDTO,
   VoterDTO,
@@ -93,9 +97,15 @@ function buildPageNumbers(current: number, totalPages: number): number[] {
 
 export interface VotersManagerProps {
   electionId?: string;
+  role?: AdminRole;
 }
 
-export function VotersManager({ electionId = "active" }: VotersManagerProps) {
+export function VotersManager({
+  electionId = "active",
+  role = "committee",
+}: VotersManagerProps) {
+  const isSuperAdmin = role === "super_admin";
+
   const [filters, setFilters] = React.useState<VoterFilterParams>(DEFAULT_FILTERS);
   const [formOpen, setFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<"create" | "edit">("create");
@@ -104,6 +114,13 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
 
   const [resetTarget, setResetTarget] = React.useState<VoterDTO | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<VoterDTO | null>(null);
+
+  const [selectedVoterIds, setSelectedVoterIds] = React.useState<Set<string>>(
+    new Set()
+  );
+  const [bulkDeleteTarget, setBulkDeleteTarget] = React.useState<
+    "selected" | "all_not_voted" | null
+  >(null);
 
   const votersQuery = useVoters(electionId, filters);
   const dashboardQuery = useDashboardStats(electionId, { autoRefresh: false });
@@ -131,6 +148,12 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
 
   const resetTokenMutation = useResetVoterToken(electionId);
   const deleteVoterMutation = useDeleteVoter(electionId);
+  const bulkDeleteMutation = useBulkDeleteVoters(electionId);
+
+  // Clear selection on filter / page change
+  React.useEffect(() => {
+    setSelectedVoterIds(new Set());
+  }, [filters]);
 
   const settings = dashboardQuery.data?.election.settings;
   const idLabel = settings?.idLabel ?? "NIS";
@@ -157,6 +180,59 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
     total: 0,
     totalPages: 1,
   };
+
+  const selectableVotersOnPage = voters.filter((v) => !v.hasVoted);
+  const allSelectableOnPageSelected =
+    selectableVotersOnPage.length > 0 &&
+    selectableVotersOnPage.every((v) => selectedVoterIds.has(v.id));
+
+  function handleToggleSelectAllOnPage() {
+    setSelectedVoterIds((prev) => {
+      const next = new Set(prev);
+      if (allSelectableOnPageSelected) {
+        selectableVotersOnPage.forEach((v) => next.delete(v.id));
+      } else {
+        selectableVotersOnPage.forEach((v) => next.add(v.id));
+      }
+      return next;
+    });
+  }
+
+  function handleToggleSelectVoter(voterId: string) {
+    setSelectedVoterIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(voterId)) {
+        next.delete(voterId);
+      } else {
+        next.add(voterId);
+      }
+      return next;
+    });
+  }
+
+  async function handleConfirmBulkDelete() {
+    if (!bulkDeleteTarget) return;
+
+    try {
+      let result: { deletedCount: number };
+      if (bulkDeleteTarget === "selected") {
+        const ids = Array.from(selectedVoterIds);
+        if (ids.length === 0) return;
+        result = await bulkDeleteMutation.mutateAsync({ voterIds: ids });
+        setSelectedVoterIds(new Set());
+      } else {
+        result = await bulkDeleteMutation.mutateAsync({ allNotVoted: true });
+        setSelectedVoterIds(new Set());
+      }
+
+      toast.success(`Berhasil menghapus ${result.deletedCount} pemilih dari DPT`);
+      setBulkDeleteTarget(null);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Gagal menghapus pemilih secara massal";
+      toast.error(message);
+    }
+  }
 
   const startItem =
     meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
@@ -230,6 +306,18 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto shrink-0">
+          {isSuperAdmin && summary.notVoted > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setBulkDeleteTarget("all_not_voted")}
+              className="text-xs font-semibold text-[#DC2626] border-[#FECACA] hover:bg-[#FEE2E2]"
+              title="Hapus semua pemilih yang belum memilih dari DPT"
+            >
+              <Trash2 className="h-4 w-4 text-[#DC2626]" aria-hidden="true" />
+              <span>Hapus Semua Belum Memilih</span>
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"
@@ -328,6 +416,34 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
           </div>
         </div>
 
+        {isSuperAdmin && selectedVoterIds.size > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#FECACA] bg-[#FFF5F3] px-5 py-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-semibold text-[#D93829] tabular-nums">
+                {selectedVoterIds.size} pemilih dipilih
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedVoterIds(new Set())}
+                className="h-7 px-2 text-xs text-[#64748B] hover:text-[#0F172A]"
+              >
+                Batal pilih
+              </Button>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setBulkDeleteTarget("selected")}
+              className="h-8 gap-1.5 rounded-[8px] bg-[#DC2626] px-3 text-xs font-semibold text-white hover:bg-[#B91C1C]"
+            >
+              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Hapus ({selectedVoterIds.size}) Terpilih</span>
+            </Button>
+          </div>
+        )}
+
         {votersQuery.isLoading ? (
           <div className="space-y-3 p-6">
             {Array.from({ length: 6 }).map((_, idx) => (
@@ -368,13 +484,23 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-32">{idLabel}</TableHead>
-                <TableHead>Nama</TableHead>
-                <TableHead className="w-36">{groupLabel}</TableHead>
-                <TableHead className="w-48">Token</TableHead>
-                <TableHead className="w-48">Status</TableHead>
-                <TableHead className="w-56 text-right">Aksi</TableHead>
+              <TableRow className="hover:bg-transparent">
+                {isSuperAdmin && (
+                  <TableHead className="w-12 py-3 px-3">
+                    <Checkbox
+                      checked={allSelectableOnPageSelected}
+                      onCheckedChange={handleToggleSelectAllOnPage}
+                      disabled={selectableVotersOnPage.length === 0}
+                      aria-label="Pilih semua pemilih di halaman ini"
+                    />
+                  </TableHead>
+                )}
+                <TableHead className="w-32 py-3 px-4">{idLabel}</TableHead>
+                <TableHead className="py-3 px-4">Nama</TableHead>
+                <TableHead className="w-36 py-3 px-4">{groupLabel}</TableHead>
+                <TableHead className="w-48 py-3 px-4">Token</TableHead>
+                <TableHead className="w-48 py-3 px-4">Status</TableHead>
+                <TableHead className="w-56 py-3 px-4 text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -386,11 +512,26 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
                     : "";
 
                 return (
-                  <TableRow key={voter.id}>
-                    <TableCell className="font-mono text-xs font-medium text-[#475569] tabular-nums">
+                  <TableRow key={voter.id} className="h-14 hover:bg-[#FAF9F7]">
+                    {isSuperAdmin && (
+                      <TableCell className="w-12 py-3 px-3">
+                        <Checkbox
+                          checked={selectedVoterIds.has(voter.id)}
+                          onCheckedChange={() => handleToggleSelectVoter(voter.id)}
+                          disabled={voter.hasVoted}
+                          aria-label={`Pilih ${voter.name}`}
+                          title={
+                            voter.hasVoted
+                              ? "Pemilih yang sudah memilih tidak dapat dihapus"
+                              : "Pilih pemilih"
+                          }
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell className="py-3 px-4 font-mono text-xs font-semibold tabular-nums text-[#334155]">
                       {voter.voterIdentity}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-[#0F172A]">
                           {voter.name}
@@ -403,32 +544,38 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[#475569]">
+                    <TableCell className="py-3 px-4 text-xs font-medium text-[#475569]">
                       {voter.groupName}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 px-4">
                       <TokenCopyBadge
                         token={voter.token}
                         hasVoted={voter.hasVoted}
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 px-4">
                       <div className="space-y-1">
                         <StatusPill status={voter.voterStatus} size="sm" />
                         {timestamp && (
-                          <div className="pl-1 text-[11px] text-[#64748B] tabular-nums">
+                          <div className="pl-1 text-xs text-[#64748B] tabular-nums">
                             {timestamp}
                           </div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="py-3 px-4 text-right">
                       <div className="inline-flex items-center justify-end gap-1.5">
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
+                          disabled={voter.hasVoted}
                           onClick={() => handleOpenEdit(voter)}
+                          title={
+                            voter.hasVoted
+                              ? "Pemilih yang sudah memilih tidak dapat diedit"
+                              : "Edit data pemilih"
+                          }
                           className="text-xs font-medium text-[#334155]"
                         >
                           Edit
@@ -634,6 +781,67 @@ export function VotersManager({ electionId = "active" }: VotersManagerProps) {
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               )}
               <span>Ya, hapus pemilih</span>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Bulk Delete Voter Confirmation */}
+      <AlertDialog
+        open={Boolean(bulkDeleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && !bulkDeleteMutation.isPending) {
+            setBulkDeleteTarget(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="rounded-[16px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-base font-bold text-[#0F172A]">
+              {bulkDeleteTarget === "selected"
+                ? `Hapus ${selectedVoterIds.size} Pemilih Terpilih?`
+                : `Hapus Seluruh Pemilih Belum Memilih?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-[#64748B] leading-relaxed">
+              {bulkDeleteTarget === "selected" ? (
+                <>
+                  Aksi ini akan menghapus permanen{" "}
+                  <strong className="text-[#0F172A]">{selectedVoterIds.size} pemilih</strong>{" "}
+                  yang dipilih dari DPT. Seluruh token aktif mereka akan hangus.
+                  Data yang sudah dihapus tidak dapat dipulihkan.
+                </>
+              ) : (
+                <>
+                  Aksi ini akan menghapus seluruh pemilih yang berstatus{" "}
+                  <strong className="text-[#0F172A]">Belum memilih ({summary.notVoted} pemilih)</strong>{" "}
+                  dari DPT pemilihan ini. Pemilih yang sudah memberikan suara tetap
+                  aman dan tidak akan terhapus.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={bulkDeleteMutation.isPending}
+              className="rounded-[10px]"
+            >
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleConfirmBulkDelete();
+              }}
+              disabled={bulkDeleteMutation.isPending}
+              className="rounded-[10px] bg-[#DC2626] font-semibold text-white hover:bg-[#B91C1C]"
+            >
+              {bulkDeleteMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Menghapus...</span>
+                </div>
+              ) : (
+                "Ya, hapus pemilih"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

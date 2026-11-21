@@ -5,10 +5,12 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
   Lock,
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   AuditLogFilterBar,
   type ActionOption,
@@ -25,7 +27,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuditLogs } from "@/hooks/use-audit-logs";
-import { cn } from "@/lib/utils";
+import { escapeSpreadsheetCell } from "@/lib/importers/dpt-parser";
+import { cn, formatDateWIB } from "@/lib/utils";
 import type { ActorType, AuditLogDTO, AuditLogFilterParams } from "@/types/votera";
 
 const INITIAL_FILTERS: AuditLogFilterParams = {
@@ -205,6 +208,112 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
     setFilters((prev) => ({ ...prev, page: nextPage }));
   };
 
+  const [isExportingCsv, setIsExportingCsv] = React.useState(false);
+
+  const handleExportCsv = async () => {
+    if (isExportingCsv) return;
+    setIsExportingCsv(true);
+    try {
+      const baseParams = new URLSearchParams();
+      if (electionId && electionId !== "active") {
+        baseParams.set("electionId", electionId);
+      }
+      baseParams.set("limit", "100");
+      if (filters.search) baseParams.set("search", filters.search);
+      if (filters.actorType && filters.actorType !== "all") {
+        baseParams.set("actorType", filters.actorType);
+      }
+      if (filters.action && filters.action !== "all") {
+        baseParams.set("action", filters.action);
+      }
+      if (filters.dateFrom) baseParams.set("dateFrom", filters.dateFrom);
+      if (filters.dateTo) baseParams.set("dateTo", filters.dateTo);
+
+      const rows: AuditLogDTO[] = [];
+      let currentPage = 1;
+      let totalPages = 1;
+      const maxPages = 10;
+
+      do {
+        const pageParams = new URLSearchParams(baseParams);
+        pageParams.set("page", String(currentPage));
+
+        const res = await fetch(`/api/admin/logs?${pageParams.toString()}`);
+        const json = await res.json().catch(() => null);
+
+        if (!res.ok || !json?.success || !Array.isArray(json.data?.logs)) {
+          throw new Error("Gagal mengambil data log untuk diekspor");
+        }
+
+        rows.push(...(json.data.logs as AuditLogDTO[]));
+        totalPages = Math.min(
+          maxPages,
+          Math.max(1, Number(json.data.meta?.totalPages ?? 1))
+        );
+        currentPage += 1;
+      } while (currentPage <= totalPages);
+      const headers = [
+        "Waktu (WIB)",
+        "Aktor",
+        "Tipe Aktor",
+        "Identitas",
+        "Aksi",
+        "Deskripsi",
+        "IP Address",
+      ];
+
+      const escapeCsvValue = (val: unknown): string => {
+        const escaped = escapeSpreadsheetCell(val);
+        const str = String(escaped ?? "").replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const csvContent = [
+        headers.map(escapeCsvValue).join(","),
+        ...rows.map((row) =>
+          [
+            formatDateWIB(row.createdAt, { withSeconds: true }),
+            row.actorName,
+            row.actorType,
+            row.actorIdentity,
+            row.actionTitle || row.action,
+            row.description,
+            row.ipAddress,
+          ]
+            .map(escapeCsvValue)
+            .join(",")
+        ),
+      ].join("\r\n");
+
+      const blob = new Blob(["\uFEFF" + csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `log-aktivitas-${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success(
+        `Berhasil mengekspor ${rows.length} catatan log aktivitas.`
+      );
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Gagal mengekspor log aktivitas"
+      );
+    } finally {
+      setIsExportingCsv(false);
+    }
+  };
+
   const startRow = meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
   const endRow = Math.min(meta.total, meta.page * meta.limit);
   const pageNumbers = getPaginationRange(meta.page, Math.max(1, meta.totalPages));
@@ -233,20 +342,35 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="h-9 shrink-0 self-start sm:self-center"
-        >
-          <RefreshCw
-            className={cn("h-4 w-4", isFetching && "animate-spin")}
-            aria-hidden="true"
-          />
-          <span>Segarkan</span>
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 min-h-[44px] sm:h-9 sm:min-h-0 shrink-0 gap-1.5"
+            onClick={handleExportCsv}
+            disabled={isExportingCsv || isLoading}
+          >
+            <Download
+              className={cn("h-4 w-4", isExportingCsv && "animate-spin")}
+              aria-hidden="true"
+            />
+            <span>Ekspor Log (CSV)</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 min-h-[44px] sm:h-9 sm:min-h-0 shrink-0 gap-1.5"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCw
+              className={cn("h-4 w-4", isFetching && "animate-spin")}
+              aria-hidden="true"
+            />
+            <span>Segarkan</span>
+          </Button>
+        </div>
       </div>
 
       {/* 4 Compact KPI Cards */}
@@ -393,11 +517,11 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[150px] px-5">WAKTU</TableHead>
-                <TableHead className="min-w-[210px]">PELAKU</TableHead>
-                <TableHead className="min-w-[180px]">AKSI</TableHead>
-                <TableHead className="min-w-[260px]">KETERANGAN</TableHead>
-                <TableHead className="w-[130px] px-5 text-right">IP</TableHead>
+                <TableHead className="w-[160px] px-5 py-3">WAKTU</TableHead>
+                <TableHead className="w-[220px] py-3 px-4">PELAKU</TableHead>
+                <TableHead className="w-[200px] py-3 px-4">AKSI</TableHead>
+                <TableHead className="min-w-[300px] py-3 px-4">KETERANGAN</TableHead>
+                <TableHead className="w-[140px] px-5 py-3 text-right">IP</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -408,19 +532,19 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
                 const actionVisual = getActionVisualMeta(log);
 
                 return (
-                  <TableRow key={log.id} className="hover:bg-[#FAF9F7]">
-                    <TableCell className="whitespace-nowrap px-5 py-3.5 align-top">
-                      <div className="flex flex-col tabular-nums">
-                        <span className="text-xs font-semibold text-[#0F172A]">
+                  <TableRow key={log.id} className="h-14 hover:bg-[#FAF9F7]">
+                    <TableCell className="whitespace-nowrap px-5 py-3 align-top">
+                      <div className="flex flex-col text-xs font-semibold tabular-nums">
+                        <span className="text-[#0F172A]">
                           {timestamp.date}
                         </span>
-                        <span className="mt-0.5 text-xs text-[#64748B]">
+                        <span className="mt-0.5 text-[#64748B]">
                           {timestamp.time}
                         </span>
                       </div>
                     </TableCell>
 
-                    <TableCell className="py-3.5 align-top">
+                    <TableCell className="py-3 px-4 align-top">
                       <div className="flex flex-col gap-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-[#0F172A]">
@@ -435,13 +559,13 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
                             {actorBadge.label}
                           </span>
                         </div>
-                        <span className="font-mono text-xs text-[#64748B] tabular-nums">
+                        <span className="font-mono text-xs font-semibold text-[#64748B] tabular-nums">
                           {log.actorIdentity}
                         </span>
                       </div>
                     </TableCell>
 
-                    <TableCell className="py-3.5 align-top">
+                    <TableCell className="py-3 px-4 align-top">
                       <div className="flex flex-col">
                         <span
                           className={cn(
@@ -457,7 +581,7 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
                       </div>
                     </TableCell>
 
-                    <TableCell className="py-3.5 align-top">
+                    <TableCell className="py-3 px-4 align-top">
                       <div className="flex items-start gap-2">
                         <span
                           aria-hidden="true"
@@ -472,8 +596,8 @@ export function AuditLogsView({ electionId = "active" }: AuditLogsViewProps) {
                       </div>
                     </TableCell>
 
-                    <TableCell className="whitespace-nowrap px-5 py-3.5 text-right align-top">
-                      <span className="inline-flex items-center rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-xs font-medium text-[#475569]">
+                    <TableCell className="whitespace-nowrap px-5 py-3 text-right align-top">
+                      <span className="inline-flex items-center rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 font-mono text-xs font-medium tabular-nums text-[#475569]">
                         {log.ipAddress || "::1"}
                       </span>
                     </TableCell>

@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCandidates } from "@/hooks/use-candidates";
-import type { CandidateDTO } from "@/types/votera";
+import type { AdminRole, CandidateDTO } from "@/types/votera";
 
 function getFallbackCandidatePhoto(candidateNumber: number): string {
   const safeNumber =
@@ -68,7 +68,11 @@ function CandidateThumbnail({
   );
 }
 
-function CandidatesTableSkeleton() {
+function CandidatesTableSkeleton({
+  isSuperAdmin = true,
+}: {
+  isSuperAdmin?: boolean;
+}) {
   return (
     <div className="overflow-hidden rounded-[16px] border border-[#E2E8F0] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div className="border-b border-[#E2E8F0] bg-[#F8FAFC]/60 px-5 py-3.5">
@@ -91,10 +95,12 @@ function CandidatesTableSkeleton() {
             <div className="hidden h-4 w-16 animate-pulse rounded bg-[#F1F5F9] sm:block" />
             <div className="hidden h-4 w-44 animate-pulse rounded bg-[#F1F5F9] md:block" />
             <div className="h-6 w-16 animate-pulse rounded-full bg-[#DCFCE7]" />
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-14 animate-pulse rounded-[8px] bg-[#F1F5F9]" />
-              <div className="h-8 w-16 animate-pulse rounded-[8px] bg-[#FEE2E2]" />
-            </div>
+            {isSuperAdmin && (
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-14 animate-pulse rounded-[8px] bg-[#F1F5F9]" />
+                <div className="h-8 w-16 animate-pulse rounded-[8px] bg-[#FEE2E2]" />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -104,11 +110,15 @@ function CandidatesTableSkeleton() {
 
 export interface CandidatesManagerProps {
   electionId?: string;
+  role?: AdminRole;
 }
 
 export function CandidatesManager({
   electionId = "active",
+  role = "committee",
 }: CandidatesManagerProps) {
+  const isSuperAdmin = role === "super_admin";
+
   const {
     data: candidates,
     isLoading,
@@ -147,16 +157,19 @@ export function CandidatesManager({
   }, [sortedCandidates]);
 
   function handleAddClick() {
+    if (!isSuperAdmin) return;
     setEditingCandidate(null);
     setFormOpen(true);
   }
 
   function handleEditClick(candidate: CandidateDTO) {
+    if (!isSuperAdmin) return;
     setEditingCandidate(candidate);
     setFormOpen(true);
   }
 
   function handleDeleteClick(candidate: CandidateDTO) {
+    if (!isSuperAdmin) return;
     setDeletingCandidate(candidate);
     setDeleteOpen(true);
   }
@@ -182,16 +195,18 @@ export function CandidatesManager({
         </div>
 
         <div className="flex items-center gap-3">
-          <Button type="button" onClick={handleAddClick}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            <span>Tambah kandidat</span>
-          </Button>
+          {isSuperAdmin && (
+            <Button type="button" onClick={handleAddClick}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <span>Tambah kandidat</span>
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Konten Utama */}
       {isLoading ? (
-        <CandidatesTableSkeleton />
+        <CandidatesTableSkeleton isSuperAdmin={isSuperAdmin} />
       ) : isError ? (
         <div className="flex flex-col items-center justify-center rounded-[16px] border border-[#FECACA] bg-white px-6 py-12 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
           <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[#FEE2E2] text-[#DC2626]">
@@ -222,10 +237,12 @@ export function CandidatesManager({
             title="Belum ada kandidat terdaftar"
             description="Tambahkan minimal 2 kandidat aktif beserta visi, misi, dan program kerjanya sebelum pemungutan suara dibuka."
             action={
-              <Button type="button" size="sm" onClick={handleAddClick}>
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                <span>Tambah kandidat</span>
-              </Button>
+              isSuperAdmin ? (
+                <Button type="button" size="sm" onClick={handleAddClick}>
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  <span>Tambah kandidat</span>
+                </Button>
+              ) : undefined
             }
           />
         </div>
@@ -238,7 +255,9 @@ export function CandidatesManager({
                 <TableHead className="px-5 py-3.5">Kelas</TableHead>
                 <TableHead className="px-5 py-3.5">Kelengkapan</TableHead>
                 <TableHead className="px-5 py-3.5">Status</TableHead>
-                <TableHead className="px-5 py-3.5 text-right">Aksi</TableHead>
+                {isSuperAdmin && (
+                  <TableHead className="px-5 py-3.5 text-right">Aksi</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -294,26 +313,28 @@ export function CandidatesManager({
                     />
                   </TableCell>
 
-                  <TableCell className="whitespace-nowrap px-5 py-4 text-right">
-                    <div className="inline-flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditClick(candidate)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="softDanger"
-                        size="sm"
-                        onClick={() => handleDeleteClick(candidate)}
-                      >
-                        Hapus
-                      </Button>
-                    </div>
-                  </TableCell>
+                  {isSuperAdmin && (
+                    <TableCell className="whitespace-nowrap px-5 py-4 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditClick(candidate)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="softDanger"
+                          size="sm"
+                          onClick={() => handleDeleteClick(candidate)}
+                        >
+                          Hapus
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -329,21 +350,25 @@ export function CandidatesManager({
       </footer>
 
       {/* Modal Tambah / Edit Kandidat */}
-      <CandidateFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        candidate={editingCandidate}
-        nextCandidateNumber={nextCandidateNumber}
-        electionId={electionId}
-      />
+      {isSuperAdmin && (
+        <CandidateFormDialog
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          candidate={editingCandidate}
+          nextCandidateNumber={nextCandidateNumber}
+          electionId={electionId}
+        />
+      )}
 
       {/* Dialog Konfirmasi Hapus Kandidat */}
-      <CandidateDeleteDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        candidate={deletingCandidate}
-        electionId={electionId}
-      />
+      {isSuperAdmin && (
+        <CandidateDeleteDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          candidate={deletingCandidate}
+          electionId={electionId}
+        />
+      )}
     </div>
   );
 }

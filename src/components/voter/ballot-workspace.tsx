@@ -71,7 +71,7 @@ export function BallotWorkspace({
 
   return (
     <div className="flex flex-1 flex-col">
-      <main className="flex-1 pb-10">
+      <main className="flex-1 pb-28 sm:pb-16">
         {/* Hero Header Surat Suara */}
         <section className="relative w-full overflow-hidden border-b border-[#E2E8F0] bg-white">
           {/* Decorative Hero Backdrop */}

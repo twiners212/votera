@@ -16,6 +16,11 @@ export default defineConfig({
     exclude: [".agents/**", "node_modules/**", ".next/**"],
     globals: true,
     fileParallelism: false,
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
+    sequence: {
+      concurrent: false,
+    },
   },
   resolve: {
     alias: {

@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/query-keys";
+import { queryKeys, invalidateElectionScopes } from "@/lib/query-keys";
 import type {
   ApiResponse,
   CandidateDTO,
@@ -77,17 +77,11 @@ function useInvalidateCandidateQueries(electionId: string) {
   const queryClient = useQueryClient();
 
   return async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.candidates.all(electionId),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.election.dashboard(electionId),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.election.results(electionId),
-      }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.logs.all(electionId) }),
+    await invalidateElectionScopes(queryClient, electionId, [
+      "candidates",
+      "dashboard",
+      "results",
+      "logs",
     ]);
   };
 }
@@ -168,3 +162,49 @@ export function useDeleteCandidate(electionId: string) {
     onSuccess: invalidate,
   });
 }
+
+export function useUploadCandidatePhoto(electionId?: string) {
+  return useMutation<{ url: string }, Error, File>({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (electionId && electionId !== "active") {
+        formData.append("electionId", electionId);
+      }
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = (await res.json().catch(() => null)) as
+        | (ApiResponse<{ url: string }> & { url?: string })
+        | { url?: string }
+        | null;
+
+      let uploadedUrl: string | undefined;
+      if (json && "success" in json) {
+        if (!res.ok || !json.success) {
+          throw new Error(
+            !json.success ? json.error.message : "Gagal mengunggah gambar"
+          );
+        }
+        uploadedUrl = json.data?.url ?? json.url;
+      } else if (res.ok && json && "url" in json && typeof json.url === "string") {
+        uploadedUrl = json.url;
+      }
+
+      if (!res.ok || !uploadedUrl) {
+        throw new Error("Gagal mengunggah gambar");
+      }
+
+      return { url: uploadedUrl };
+    },
+  });
+}
+
+/**
+ * Alias generik untuk pengunggahan media panel admin (Logo, Banner, Foto Kandidat).
+ * Menggunakan endpoint dan backend pipeline yang sama dengan useUploadCandidatePhoto.
+ */
+export const useAdminUpload = useUploadCandidatePhoto;

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { candidates, db, elections, electionSettings } from "@/db";
+import { getVoterSession } from "@/lib/auth/voter-session";
 import { CandidateDetailView } from "@/components/voter/candidate-detail-view";
 import type { CandidateDTO } from "@/types/votera";
 
@@ -33,6 +33,7 @@ async function getActiveElectionWithCandidate(candidateId: string) {
     .from(elections)
     .leftJoin(electionSettings, eq(electionSettings.electionId, elections.id))
     .where(eq(elections.isActive, true))
+    .orderBy(desc(elections.createdAt))
     .limit(1);
 
   if (!electionRow) {
@@ -128,13 +129,14 @@ export default async function CandidateDetailPage({
     notFound();
   }
 
-  const cookieStore = await cookies();
-  const hasVoterSession = Boolean(cookieStore.get("votera_voter_session")?.value);
+  const voter = await getVoterSession();
+  const hasVoterSession = Boolean(voter);
 
   return (
     <CandidateDetailView
       candidate={data.candidate}
       election={data.election}
+      voter={voter}
       hasVoterSession={hasVoterSession}
     />
   );

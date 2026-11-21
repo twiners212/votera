@@ -56,6 +56,7 @@ export interface CandidateDTO {
   photoUrl: string | null;
   themeColor: CandidateTheme;
   isActive: boolean;
+  votesCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }

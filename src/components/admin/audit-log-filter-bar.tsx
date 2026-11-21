@@ -25,12 +25,13 @@ const DEFAULT_ACTION_OPTIONS: ActionOption[] = [
   { value: "voter_login_failed", label: "Login gagal" },
   { value: "vote_cast", label: "Vote cast" },
   { value: "voter_logout", label: "Pemilih logout" },
-  { value: "token_reset", label: "Reset token" },
-  { value: "voters_imported", label: "Impor DPT" },
+  { value: "voter_token_reset", label: "Reset token" },
+  { value: "voter_token_copied", label: "Token disalin" },
+  { value: "voters_bulk_imported", label: "Impor DPT massal" },
   { value: "dpt_imported", label: "Impor DPT awal" },
   { value: "election_created", label: "Pemilihan dibuat" },
   { value: "candidates_registered", label: "Kandidat didaftarkan" },
-  { value: "settings_updated", label: "Pengaturan diperbarui" },
+  { value: "election_settings_updated", label: "Pengaturan diperbarui" },
 ];
 
 export interface AuditLogFilterBarProps {

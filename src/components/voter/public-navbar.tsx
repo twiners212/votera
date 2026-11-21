@@ -64,7 +64,7 @@ export function PublicNavbar({
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 w-full border-b border-[#E2E8F0] bg-white/95 backdrop-blur-sm",
+        "sticky top-0 z-30 w-full border-b border-[#E2E8F0] bg-white/98 backdrop-blur-md shadow-[0_1px_2px_rgba(15,23,42,0.03)]",
         className
       )}
     >

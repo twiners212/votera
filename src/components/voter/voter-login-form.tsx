@@ -9,11 +9,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   AlertCircle,
+  CheckCircle2,
   Eye,
   EyeOff,
   Loader2,
   Lock,
+  ShieldCheck,
   User,
+  Zap,
 } from "lucide-react";
 import { BrandHeader } from "@/components/shared/brand-header";
 import { StatusPill } from "@/components/shared/status-pill";
@@ -173,16 +176,16 @@ export function VoterLoginForm({
   return (
     <section
       aria-label="Halaman masuk pemilih"
-      className="flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-white sm:min-h-0 sm:rounded-[28px] sm:border sm:border-[#E2E8F0] sm:shadow-[0_20px_50px_rgba(15,23,42,0.10)]"
+      className="flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-white sm:min-h-0 sm:rounded-[28px] sm:border sm:border-[#E2E8F0] sm:shadow-[0_20px_50px_rgba(15,23,42,0.10)] lg:min-h-[620px] lg:max-w-5xl lg:flex-row lg:items-stretch lg:rounded-[28px] lg:border lg:border-[#E2E8F0] lg:shadow-[0_25px_60px_-15px_rgba(15,23,42,0.12)]"
     >
-      {/* Red Gradient Hero Header over Flag & Ballot Illustration */}
-      <header className="relative overflow-hidden px-6 pb-14 pt-8 text-white">
+      {/* Left Column (Desktop) / Red Gradient Hero Header (Mobile) */}
+      <header className="relative flex flex-col justify-between overflow-hidden px-6 pb-14 pt-8 text-white lg:min-h-[620px] lg:w-[52%] lg:p-10">
         <Image
           src={resolvedHeroBanner}
           alt="Latar belakang pemilihan"
           fill
           priority
-          sizes="440px"
+          sizes="(min-width: 1024px) 560px, 440px"
           className="object-cover object-center"
           unoptimized
         />
@@ -194,7 +197,7 @@ export function VoterLoginForm({
         {/* Subtle decorative ballot box motif */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-5 top-6 h-48 w-48 select-none opacity-15"
+          className="pointer-events-none absolute -right-5 top-6 h-48 w-48 select-none opacity-15 lg:-right-8 lg:top-8 lg:h-72 lg:w-72"
         >
           <svg
             className="h-full w-full fill-current text-white"
@@ -221,44 +224,109 @@ export function VoterLoginForm({
           </svg>
         </div>
 
-        <div className="relative z-10">
-          <BrandHeader
-            shortName={shortName}
-            organizationName={organizationName}
-            logoUrl={resolvedLogo}
-            variant="onDark"
-            size="md"
-          />
+        <div className="relative z-10 flex flex-1 flex-col justify-between">
+          <div>
+            {/* Official Badge (Desktop) */}
+            <div className="mb-4 hidden lg:block">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white/90 backdrop-blur-sm">
+                PEMILIHAN RESMI — SATU ORANG, SATU SUARA
+              </span>
+            </div>
 
-          <div className="mt-6">
-            <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-[26px]">
-              {titlePrefix}
-              {titleHighlight && (
-                <>
-                  <br />
-                  <span className="text-[#FDE047]">{titleHighlight}</span>
-                </>
-              )}
-            </h1>
+            <BrandHeader
+              shortName={shortName}
+              organizationName={organizationName}
+              logoUrl={resolvedLogo}
+              variant="onDark"
+              size="md"
+            />
+
+            <div className="mt-6">
+              <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-[26px] lg:text-3xl">
+                {titlePrefix}
+                {titleHighlight && (
+                  <>
+                    <br />
+                    <span className="text-[#FDE047] tabular-nums">{titleHighlight}</span>
+                  </>
+                )}
+              </h1>
+            </div>
+
+            {/* 3 Voter Security Assurance Cards (Desktop only) */}
+            <div className="mt-8 hidden flex-col gap-3 lg:flex">
+              <div className="flex items-start gap-3 rounded-[16px] border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white/15 text-white">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">
+                    <span className="tabular-nums">1</span> Orang, <span className="tabular-nums">1</span> Suara
+                  </h3>
+                  <p className="mt-0.5 text-xs leading-relaxed text-white/80">
+                    Token sekali pakai menjamin tidak ada duplikasi pilihan.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-[16px] border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white/15 text-white">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">
+                    Anonim &amp; Rahasia
+                  </h3>
+                  <p className="mt-0.5 text-xs leading-relaxed text-white/80">
+                    Identitas pemilih terpisah mutlak dari surat suara.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-[16px] border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-white/15 text-white">
+                  <Zap className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">
+                    Cepat &amp; Terverifikasi
+                  </h3>
+                  <p className="mt-0.5 text-xs leading-relaxed text-white/80">
+                    Cukup masukkan {idLabel} dan Token untuk memilih dalam hitungan detik.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* StatusPill ● Pemungutan suara dibuka (Desktop only) */}
+          <div className="mt-6 hidden lg:block">
+            <StatusPill
+              status={status}
+              label={status === "open" ? "Pemungutan suara dibuka" : undefined}
+              bordered
+              className="shadow-sm"
+            />
           </div>
         </div>
       </header>
 
-      {/* Overlapping White Form Card */}
-      <div className="relative z-20 -mt-7 flex flex-1 flex-col justify-between rounded-t-[24px] bg-white px-6 pb-8 pt-6 shadow-[0_-8px_30px_rgba(15,23,42,0.08)]">
+      {/* Right Column (Pure White Clean Login Form #FFFFFF) */}
+      <div className="relative z-20 -mt-7 flex flex-1 flex-col justify-between rounded-t-[24px] bg-white px-6 pb-8 pt-6 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] lg:mt-0 lg:w-[48%] lg:rounded-none lg:rounded-r-[28px] lg:p-10 lg:shadow-none lg:flex lg:flex-col lg:justify-between">
         <div>
+          {/* StatusPill on mobile view */}
           <StatusPill
             status={status}
             label={status === "open" ? "Pemungutan suara dibuka" : undefined}
             bordered
-            className="mb-4"
+            className="mb-4 lg:hidden"
           />
 
-          <div className="mb-5">
-            <h2 className="text-xl font-extrabold tracking-tight text-[#0F172A]">
+          <div className="mb-5 lg:mb-6">
+            <h2 className="text-xl font-extrabold tracking-tight text-[#0F172A] lg:text-2xl">
               Masuk untuk memilih
             </h2>
-            <p className="mt-1 text-[13px] leading-snug text-[#64748B]">
+            <p className="mt-1 text-[13px] leading-snug text-[#64748B] lg:text-sm">
               Gunakan {idLabel} dan token yang dibagikan panitia kepada kamu.
             </p>
           </div>
@@ -294,7 +362,7 @@ export function VoterLoginForm({
                 leftIcon={<User className="h-[18px] w-[18px]" />}
                 aria-invalid={Boolean(errors.voterIdentity)}
                 className={cn(
-                  "tabular-nums rounded-[12px]",
+                  "h-12 rounded-[12px] tabular-nums",
                   errors.voterIdentity &&
                     "border-[#DC2626] bg-[#FEF2F2]/40 focus-visible:border-[#DC2626] focus-visible:ring-[#DC2626]/20"
                 )}
@@ -305,7 +373,7 @@ export function VoterLoginForm({
                 })}
               />
               {errors.voterIdentity && (
-                <p className="mt-1.5 text-xs font-medium text-[#DC2626]">
+                <p className="mt-1.5 text-xs font-medium text-[#DC2626] tabular-nums">
                   {errors.voterIdentity.message}
                 </p>
               )}
@@ -346,14 +414,14 @@ export function VoterLoginForm({
                 }
                 aria-invalid={Boolean(errors.token)}
                 className={cn(
-                  "rounded-[12px] font-mono uppercase tracking-wider placeholder:font-sans placeholder:normal-case placeholder:tracking-normal",
+                  "h-12 rounded-[12px] font-mono uppercase tracking-wider placeholder:font-sans placeholder:normal-case placeholder:tracking-normal",
                   errors.token &&
                     "border-[#DC2626] bg-[#FEF2F2]/40 focus-visible:border-[#DC2626] focus-visible:ring-[#DC2626]/20"
                 )}
                 {...tokenField}
               />
               {errors.token && (
-                <p className="mt-1.5 text-xs font-medium text-[#DC2626]">
+                <p className="mt-1.5 text-xs font-medium text-[#DC2626] tabular-nums">
                   {errors.token.message}
                 </p>
               )}
@@ -364,7 +432,7 @@ export function VoterLoginForm({
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="min-h-[48px] w-full rounded-[12px] bg-[#D93829] text-sm font-bold tracking-wide text-white shadow-md shadow-[#D93829]/20 hover:bg-[#B8281B]"
+                className="h-12 min-h-[48px] w-full rounded-[12px] bg-[#D93829] text-sm font-bold tracking-wide text-white shadow-md shadow-[#D93829]/20 hover:bg-[#B8281B]"
               >
                 {isSubmitting ? (
                   <>

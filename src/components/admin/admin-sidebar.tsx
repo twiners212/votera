@@ -159,7 +159,7 @@ export function AdminSidebarContent({
   return (
     <div className="flex h-full flex-col justify-between bg-white">
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex h-16 shrink-0 items-center border-b border-[#E2E8F0] px-5">
+        <div className="flex h-16 shrink-0 items-center border-b border-[#E2E8F0] px-4 min-w-0 overflow-hidden">
           <BrandHeader
             shortName={shortName}
             organizationName="Panel Panitia"
@@ -243,7 +243,7 @@ export function AdminSidebar({
   return (
     <aside
       className={cn(
-        "hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-60 lg:flex-col border-r border-[#E2E8F0] bg-white",
+        "hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-64 lg:flex-col border-r border-[#E2E8F0] bg-white overflow-hidden",
         className
       )}
     >

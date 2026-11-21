@@ -71,9 +71,9 @@ export function VoterFilterBar({
     <div className="rounded-[12px] border border-[#E2E8F0] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
       <form
         onSubmit={handleSearchSubmit}
-        className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-12"
+        className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2 lg:grid-cols-6"
       >
-        <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+        <div className="space-y-1.5 sm:col-span-2 lg:col-span-1">
           <label
             htmlFor="voter-search-input"
             className="block text-xs font-semibold text-[#475569]"
@@ -90,7 +90,7 @@ export function VoterFilterBar({
           />
         </div>
 
-        <div className="space-y-1.5 lg:col-span-2">
+        <div className="space-y-1.5">
           <label
             htmlFor="voter-status-select"
             className="block text-xs font-semibold text-[#475569]"
@@ -119,7 +119,7 @@ export function VoterFilterBar({
           </Select>
         </div>
 
-        <div className="space-y-1.5 lg:col-span-2">
+        <div className="space-y-1.5">
           <label
             htmlFor="voter-group-select"
             className="block text-xs font-semibold text-[#475569]"
@@ -150,7 +150,7 @@ export function VoterFilterBar({
           </Select>
         </div>
 
-        <div className="space-y-1.5 lg:col-span-2">
+        <div className="space-y-1.5">
           <label
             htmlFor="voter-grade-select"
             className="block text-xs font-semibold text-[#475569]"
@@ -181,7 +181,7 @@ export function VoterFilterBar({
           </Select>
         </div>
 
-        <div className="space-y-1.5 lg:col-span-2">
+        <div className="space-y-1.5">
           <label
             htmlFor="voter-major-select"
             className="block text-xs font-semibold text-[#475569]"

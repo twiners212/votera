@@ -19,6 +19,7 @@ import { ScheduleQuickDialog } from "@/components/admin/schedule-quick-dialog";
 import { StatusPill } from "@/components/shared/status-pill";
 import { Button } from "@/components/ui/button";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { isElectionScheduleExpired } from "@/lib/admin/election-state";
 import type { ElectionStatus } from "@/types/votera";
 
 const ELECTION_STATUS_LABELS: Record<ElectionStatus, string> = {
@@ -163,9 +164,52 @@ export function DashboardOverview({
   const { election, summary, groupParticipation, readiness, recentActivities } =
     data;
   const groupLabel = election.settings.groupLabel || "Kelas";
+  const isScheduleExpired = isElectionScheduleExpired({
+    status: election.status,
+    startAt: election.startAt,
+    endAt: election.endAt,
+  });
 
   return (
     <div className="space-y-6">
+      {/* Banner Peringatan: Jadwal Telah Berakhir Saat Status Masih Open */}
+      {isScheduleExpired && (
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-[14px] border border-amber-300 bg-amber-50/90 p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-xs font-bold text-amber-950 sm:text-sm">
+                Jadwal Pemilihan Telah Berakhir &mdash; Bilik Suara Otomatis Terkunci
+              </p>
+              <p className="text-xs leading-relaxed text-amber-800">
+                Waktu selesai pemilihan (
+                <span className="font-semibold tabular-nums">
+                  {election.endAt ? formatScheduleDateTime(election.endAt) : "-"}
+                </span>
+                ) telah terlewati. Pemilih tidak dapat lagi login atau mengirim suara. Silakan buka Pengaturan untuk meresmikan status menjadi <strong>Closed (Ditutup)</strong>.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin/settings"
+            className="shrink-0 self-start sm:self-center"
+          >
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 rounded-[8px] bg-amber-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-amber-700"
+            >
+              Buka Pengaturan
+            </Button>
+          </Link>
+        </div>
+      )}
+
       <section className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-[#0F172A]">
