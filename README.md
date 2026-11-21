@@ -8,6 +8,14 @@ Votera dirancang untuk menyediakan proses pemilihan elektronik yang transparan, 
 
 ---
 
+## Tampilan Antarmuka (Preview)
+
+| Web View (Desktop) | Mobile View (Smartphone) |
+|:---:|:---:|
+| <img src="docs/screenshots/desktop-preview.png" alt="Desktop View Votera" width="700" /> | <img src="docs/screenshots/mobile-preview.png" alt="Mobile View Votera" width="260" /> |
+
+---
+
 ## Arsitektur & Keunggulan Utama
 
 - **Kerahasiaan Suara Mutlak (*Unlinkable Anonymous Ballot*):** Catatan pencoblosan pada tabel suara tidak menyimpan relasi ke identitas pemilih atau alamat IP.
