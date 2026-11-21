@@ -42,11 +42,15 @@ jobs:
         run: pnpm build
 
       - name: Run integration tests (conditional on Neon database secrets)
-        if: ${{ secrets.DATABASE_URL != '' && secrets.DIRECT_DATABASE_URL != '' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           TOKEN_ENCRYPTION_KEY: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
           TOKEN_HMAC_SECRET: ${{ secrets.TOKEN_HMAC_SECRET }}
-        run: pnpm test:integration
+        run: |
+          if [ -n "$DATABASE_URL" ] && [ -n "$DIRECT_DATABASE_URL" ]; then
+            pnpm test:integration
+          else
+            echo "Database secrets not configured. Skipping integration tests."
+          fi
