@@ -2,6 +2,8 @@
 
 > Platform E-Voting & Pemilihan Online Multi-Instansi dengan Jaminan Kerahasiaan Suara (*Unlinkable Anonymous Ballot*) dan Keamanan Atomik 1 Pemilih 1 Suara.
 
+🌐 **Live Demo:** [https://votera-delta.vercel.app](https://votera-delta.vercel.app)
+
 Votera dirancang untuk menyediakan proses pemilihan elektronik yang transparan, aman, dan mudah diakses dari berbagai perangkat (mobile, tablet, bilik suara desktop). Dikonfigurasi secara default untuk pemilihan institusi sekolah/kampus/komunitas dengan performa serverless tinggi.
 
 ---
