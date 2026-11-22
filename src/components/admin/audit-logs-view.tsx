@@ -27,7 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuditLogs } from "@/hooks/use-audit-logs";
-import { escapeSpreadsheetCell } from "@/lib/importers/dpt-parser";
+import { escapeSpreadsheetCell } from "@/lib/importers/csv-sanitizer";
 import { cn, formatDateWIB } from "@/lib/utils";
 import type { ActorType, AuditLogDTO, AuditLogFilterParams } from "@/types/votera";
 

@@ -14,8 +14,15 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
-import { DptImportDialog } from "@/components/admin/dpt-import-dialog";
+const DptImportDialog = dynamic(
+  () =>
+    import("@/components/admin/dpt-import-dialog").then(
+      (m) => m.DptImportDialog
+    ),
+  { ssr: false }
+);
 import { KpiStatCard } from "@/components/admin/kpi-stat-card";
 import { TokenCopyBadge } from "@/components/admin/token-copy-badge";
 import { VoterFilterBar } from "@/components/admin/voter-filter-bar";
@@ -691,15 +698,17 @@ export function VotersManager({
       />
 
       {/* Bulk Import DPT Modal */}
-      <DptImportDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
-        electionId={electionId}
-        idLabel={idLabel}
-        groupLabel={groupLabel}
-        gradeLabel={gradeLabel}
-        majorLabel={majorLabel}
-      />
+      {importOpen && (
+        <DptImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          electionId={electionId}
+          idLabel={idLabel}
+          groupLabel={groupLabel}
+          gradeLabel={gradeLabel}
+          majorLabel={majorLabel}
+        />
+      )}
 
       {/* Reset Token Confirmation */}
       <AlertDialog

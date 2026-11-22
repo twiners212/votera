@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, asc, desc, eq } from "drizzle-orm";
 import { ArrowLeft, Inbox, Users } from "lucide-react";
-import { db, candidates, electionSettings, elections } from "@/db";
 import { CurvedRedFooter } from "@/components/shared/curved-red-footer";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { CandidateShowcaseGrid } from "@/components/voter/candidate-showcase-grid";
 import { PublicNavbar } from "@/components/voter/public-navbar";
-import type { CandidateDTO, ElectionStatus } from "@/types/votera";
+import { getPublicShowcaseDataCached } from "@/lib/public/showcase-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -18,97 +16,8 @@ export const metadata: Metadata = {
     "Pelajari profil, motto, visi, dan misi setiap kandidat resmi sebelum memberikan suara.",
 };
 
-interface CandidatesPageData {
-  shortName: string;
-  title: string;
-  organizationName: string;
-  status: ElectionStatus;
-  logoUrl: string;
-  candidates: CandidateDTO[];
-}
-
-const DEFAULT_CANDIDATES_PAGE_DATA: CandidatesPageData = {
-  shortName: "PILKETOS 2026",
-  title: "Pemilihan Ketua OSIS 2026",
-  organizationName: "SMA Bojong Gede",
-  status: "draft",
-  logoUrl: "/images/logo-default.png",
-  candidates: [],
-};
-
-async function getCandidatesPageData(): Promise<CandidatesPageData> {
-  try {
-    const [election] = await db
-      .select({
-        id: elections.id,
-        shortName: elections.shortName,
-        title: elections.title,
-        organizationName: elections.organizationName,
-        status: elections.status,
-      })
-      .from(elections)
-      .where(eq(elections.isActive, true))
-      .orderBy(desc(elections.createdAt))
-      .limit(1);
-
-    if (!election) {
-      return DEFAULT_CANDIDATES_PAGE_DATA;
-    }
-
-    const [[settings], activeCandidates] = await Promise.all([
-      db
-        .select({
-          logoUrl: electionSettings.logoUrl,
-        })
-        .from(electionSettings)
-        .where(eq(electionSettings.electionId, election.id))
-        .limit(1),
-      db
-        .select({
-          id: candidates.id,
-          electionId: candidates.electionId,
-          candidateNumber: candidates.candidateNumber,
-          name: candidates.name,
-          classOrUnit: candidates.classOrUnit,
-          motto: candidates.motto,
-          vision: candidates.vision,
-          missions: candidates.missions,
-          programs: candidates.programs,
-          supporters: candidates.supporters,
-          photoUrl: candidates.photoUrl,
-          themeColor: candidates.themeColor,
-          isActive: candidates.isActive,
-        })
-        .from(candidates)
-        .where(
-          and(
-            eq(candidates.electionId, election.id),
-            eq(candidates.isActive, true)
-          )
-        )
-        .orderBy(asc(candidates.candidateNumber)),
-    ]);
-
-    return {
-      shortName: election.shortName,
-      title: election.title,
-      organizationName: election.organizationName,
-      status: election.status,
-      logoUrl: settings?.logoUrl?.trim() || "/images/logo-default.png",
-      candidates: activeCandidates.map((item) => ({
-        ...item,
-        missions: Array.isArray(item.missions) ? item.missions : [],
-        programs: Array.isArray(item.programs) ? item.programs : [],
-        supporters: Array.isArray(item.supporters) ? item.supporters : [],
-      })),
-    };
-  } catch {
-    return DEFAULT_CANDIDATES_PAGE_DATA;
-  }
-}
-
 export default async function CandidatesPage() {
-  const data = await getCandidatesPageData();
+  const data = await getPublicShowcaseDataCached();
 
   return (
     <>

@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
 
     try {
       revalidateTag("election-results");
+      revalidateTag("election-dashboard");
       revalidateTag(voter.electionId);
       revalidatePath("/vote");
       revalidatePath("/vote/thanks");
