@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 import { and, eq, gt, sql } from "drizzle-orm";
@@ -114,67 +115,69 @@ export function clearVoterSessionCookie(response: NextResponse): void {
   });
 }
 
-export async function getVoterSession(
-  cookieValueOverride?: string | null
-): Promise<AuthenticatedVoterSession | null> {
-  try {
-    let rawCookie = cookieValueOverride;
-    if (rawCookie === undefined) {
-      const cookieStore = await cookies();
-      rawCookie = cookieStore.get(VOTER_SESSION_COOKIE)?.value;
-    }
+export const getVoterSession = cache(
+  async (
+    cookieValueOverride?: string | null
+  ): Promise<AuthenticatedVoterSession | null> => {
+    try {
+      let rawCookie = cookieValueOverride;
+      if (rawCookie === undefined) {
+        const cookieStore = await cookies();
+        rawCookie = cookieStore.get(VOTER_SESSION_COOKIE)?.value;
+      }
 
-    const verified = verifySignedSessionValue(rawCookie);
-    if (!verified) {
-      return null;
-    }
+      const verified = verifySignedSessionValue(rawCookie);
+      if (!verified) {
+        return null;
+      }
 
-    const [sessionRow] = await db
-      .select({
-        sessionId: voterSessions.id,
-        sessionTokenHash: voterSessions.sessionTokenHash,
-        voterId: voters.id,
-        electionId: voters.electionId,
-        name: voters.name,
-        voterIdentity: voters.voterIdentity,
-        groupId: voters.groupId,
-        groupName: voterGroups.name,
-        voterStatus: voters.voterStatus,
-        hasVoted: voters.hasVoted,
-        votedAt: voters.votedAt,
-      })
-      .from(voterSessions)
-      .innerJoin(voters, eq(voterSessions.voterId, voters.id))
-      .innerJoin(voterGroups, eq(voters.groupId, voterGroups.id))
-      .where(
-        and(
-          eq(voterSessions.sessionTokenHash, verified.sessionTokenHash),
-          gt(voterSessions.expiresAt, sql`now()`)
+      const [sessionRow] = await db
+        .select({
+          sessionId: voterSessions.id,
+          sessionTokenHash: voterSessions.sessionTokenHash,
+          voterId: voters.id,
+          electionId: voters.electionId,
+          name: voters.name,
+          voterIdentity: voters.voterIdentity,
+          groupId: voters.groupId,
+          groupName: voterGroups.name,
+          voterStatus: voters.voterStatus,
+          hasVoted: voters.hasVoted,
+          votedAt: voters.votedAt,
+        })
+        .from(voterSessions)
+        .innerJoin(voters, eq(voterSessions.voterId, voters.id))
+        .innerJoin(voterGroups, eq(voters.groupId, voterGroups.id))
+        .where(
+          and(
+            eq(voterSessions.sessionTokenHash, verified.sessionTokenHash),
+            gt(voterSessions.expiresAt, sql`now()`)
+          )
         )
-      )
-      .limit(1);
+        .limit(1);
 
-    if (!sessionRow) {
+      if (!sessionRow) {
+        return null;
+      }
+
+      return {
+        sessionId: sessionRow.sessionId,
+        sessionTokenHash: sessionRow.sessionTokenHash,
+        id: sessionRow.voterId,
+        electionId: sessionRow.electionId,
+        name: sessionRow.name,
+        voterIdentity: sessionRow.voterIdentity,
+        groupId: sessionRow.groupId,
+        groupName: sessionRow.groupName,
+        voterStatus: sessionRow.voterStatus,
+        hasVoted: sessionRow.hasVoted,
+        votedAt: sessionRow.votedAt ? sessionRow.votedAt.toISOString() : null,
+      };
+    } catch {
       return null;
     }
-
-    return {
-      sessionId: sessionRow.sessionId,
-      sessionTokenHash: sessionRow.sessionTokenHash,
-      id: sessionRow.voterId,
-      electionId: sessionRow.electionId,
-      name: sessionRow.name,
-      voterIdentity: sessionRow.voterIdentity,
-      groupId: sessionRow.groupId,
-      groupName: sessionRow.groupName,
-      voterStatus: sessionRow.voterStatus,
-      hasVoted: sessionRow.hasVoted,
-      votedAt: sessionRow.votedAt ? sessionRow.votedAt.toISOString() : null,
-    };
-  } catch {
-    return null;
   }
-}
+);
 
 export async function deleteVoterSessionByCookieValue(
   cookieValue: string | undefined | null

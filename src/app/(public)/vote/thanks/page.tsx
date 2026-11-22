@@ -42,37 +42,31 @@ async function getVoteThanksPageData(
   voter: VoterSessionDTO
 ): Promise<VoteThanksPageData> {
   try {
-    const [election] = await db
+    const [row] = await db
       .select({
-        id: elections.id,
         shortName: elections.shortName,
         title: elections.title,
         organizationName: elections.organizationName,
         status: elections.status,
+        logoUrl: electionSettings.logoUrl,
+        heroBannerUrl: electionSettings.heroBannerUrl,
       })
       .from(elections)
+      .leftJoin(
+        electionSettings,
+        eq(electionSettings.electionId, elections.id)
+      )
       .where(eq(elections.id, voter.electionId))
       .limit(1);
 
-    const [settings] = election
-      ? await db
-          .select({
-            logoUrl: electionSettings.logoUrl,
-            heroBannerUrl: electionSettings.heroBannerUrl,
-          })
-          .from(electionSettings)
-          .where(eq(electionSettings.electionId, election.id))
-          .limit(1)
-      : [undefined];
-
     return {
-      shortName: election?.shortName ?? DEFAULT_PAGE_DATA.shortName,
+      shortName: row?.shortName ?? DEFAULT_PAGE_DATA.shortName,
       organizationName:
-        election?.organizationName ?? DEFAULT_PAGE_DATA.organizationName,
-      title: election?.title ?? DEFAULT_PAGE_DATA.title,
-      status: election?.status ?? DEFAULT_PAGE_DATA.status,
-      logoUrl: settings?.logoUrl ?? DEFAULT_PAGE_DATA.logoUrl,
-      heroBannerUrl: settings?.heroBannerUrl ?? DEFAULT_PAGE_DATA.heroBannerUrl,
+        row?.organizationName ?? DEFAULT_PAGE_DATA.organizationName,
+      title: row?.title ?? DEFAULT_PAGE_DATA.title,
+      status: row?.status ?? DEFAULT_PAGE_DATA.status,
+      logoUrl: row?.logoUrl ?? DEFAULT_PAGE_DATA.logoUrl,
+      heroBannerUrl: row?.heroBannerUrl ?? DEFAULT_PAGE_DATA.heroBannerUrl,
       voter,
     };
   } catch {

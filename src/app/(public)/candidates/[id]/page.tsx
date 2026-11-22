@@ -1,10 +1,11 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { candidates, db, elections, electionSettings } from "@/db";
 import { getVoterSession } from "@/lib/auth/voter-session";
 import { CandidateDetailView } from "@/components/voter/candidate-detail-view";
-import type { CandidateDTO } from "@/types/votera";
+import type { CandidateDTO, CandidateTheme, ElectionStatus } from "@/types/votera";
 
 export const dynamic = "force-dynamic";
 
@@ -15,35 +16,21 @@ interface CandidateDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getActiveElectionWithCandidate(candidateId: string) {
+const getActiveElectionWithCandidate = cache(async (candidateId: string) => {
   if (!UUID_REGEX.test(candidateId)) {
     return null;
   }
 
-  const [electionRow] = await db
+  const [row] = await db
     .select({
-      id: elections.id,
+      electionId: elections.id,
       shortName: elections.shortName,
       title: elections.title,
       organizationName: elections.organizationName,
       status: elections.status,
       logoUrl: electionSettings.logoUrl,
       heroBannerUrl: electionSettings.heroBannerUrl,
-    })
-    .from(elections)
-    .leftJoin(electionSettings, eq(electionSettings.electionId, elections.id))
-    .where(eq(elections.isActive, true))
-    .orderBy(desc(elections.createdAt))
-    .limit(1);
-
-  if (!electionRow) {
-    return null;
-  }
-
-  const [candidateRow] = await db
-    .select({
-      id: candidates.id,
-      electionId: candidates.electionId,
+      candidateId: candidates.id,
       candidateNumber: candidates.candidateNumber,
       name: candidates.name,
       classOrUnit: candidates.classOrUnit,
@@ -57,49 +44,59 @@ async function getActiveElectionWithCandidate(candidateId: string) {
       isActive: candidates.isActive,
     })
     .from(candidates)
+    .innerJoin(
+      elections,
+      and(
+        eq(candidates.electionId, elections.id),
+        eq(elections.isActive, true)
+      )
+    )
+    .leftJoin(
+      electionSettings,
+      eq(electionSettings.electionId, elections.id)
+    )
     .where(
       and(
         eq(candidates.id, candidateId),
-        eq(candidates.electionId, electionRow.id),
         eq(candidates.isActive, true)
       )
     )
     .limit(1);
 
-  if (!candidateRow) {
+  if (!row) {
     return null;
   }
 
   const candidate: CandidateDTO = {
-    id: candidateRow.id,
-    electionId: candidateRow.electionId,
-    candidateNumber: candidateRow.candidateNumber,
-    name: candidateRow.name,
-    classOrUnit: candidateRow.classOrUnit,
-    motto: candidateRow.motto,
-    vision: candidateRow.vision,
-    missions: Array.isArray(candidateRow.missions) ? candidateRow.missions : [],
-    programs: Array.isArray(candidateRow.programs) ? candidateRow.programs : [],
-    supporters: Array.isArray(candidateRow.supporters)
-      ? candidateRow.supporters
+    id: row.candidateId,
+    electionId: row.electionId,
+    candidateNumber: row.candidateNumber,
+    name: row.name,
+    classOrUnit: row.classOrUnit,
+    motto: row.motto,
+    vision: row.vision,
+    missions: Array.isArray(row.missions) ? (row.missions as string[]) : [],
+    programs: Array.isArray(row.programs) ? (row.programs as string[]) : [],
+    supporters: Array.isArray(row.supporters)
+      ? (row.supporters as string[])
       : [],
-    photoUrl: candidateRow.photoUrl,
-    themeColor: candidateRow.themeColor,
-    isActive: candidateRow.isActive,
+    photoUrl: row.photoUrl,
+    themeColor: (row.themeColor as CandidateTheme) ?? "red",
+    isActive: row.isActive,
   };
 
   return {
     election: {
-      shortName: electionRow.shortName,
-      title: electionRow.title,
-      organizationName: electionRow.organizationName,
-      status: electionRow.status,
-      logoUrl: electionRow.logoUrl ?? null,
-      heroBannerUrl: electionRow.heroBannerUrl ?? null,
+      shortName: row.shortName,
+      title: row.title,
+      organizationName: row.organizationName,
+      status: row.status as ElectionStatus,
+      logoUrl: row.logoUrl ?? null,
+      heroBannerUrl: row.heroBannerUrl ?? null,
     },
     candidate,
   };
-}
+});
 
 export async function generateMetadata({
   params,

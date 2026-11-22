@@ -33,7 +33,7 @@ interface BallotPageData {
 
 async function loadBallotPageData(): Promise<BallotPageData> {
   try {
-    const [voter, [activeElection]] = await Promise.all([
+    const [voter, [activeElection], rawCandidates] = await Promise.all([
       getVoterSession(),
       db
         .select({
@@ -55,6 +55,32 @@ async function loadBallotPageData(): Promise<BallotPageData> {
         .where(eq(elections.isActive, true))
         .orderBy(desc(elections.createdAt))
         .limit(1),
+      db
+        .select({
+          id: candidates.id,
+          electionId: candidates.electionId,
+          candidateNumber: candidates.candidateNumber,
+          name: candidates.name,
+          classOrUnit: candidates.classOrUnit,
+          motto: candidates.motto,
+          vision: candidates.vision,
+          missions: candidates.missions,
+          programs: candidates.programs,
+          supporters: candidates.supporters,
+          photoUrl: candidates.photoUrl,
+          themeColor: candidates.themeColor,
+          isActive: candidates.isActive,
+        })
+        .from(candidates)
+        .innerJoin(
+          elections,
+          and(
+            eq(candidates.electionId, elections.id),
+            eq(elections.isActive, true)
+          )
+        )
+        .where(eq(candidates.isActive, true))
+        .orderBy(asc(candidates.candidateNumber)),
     ]);
 
     if (!activeElection) {
@@ -67,30 +93,9 @@ async function loadBallotPageData(): Promise<BallotPageData> {
       };
     }
 
-    const activeCandidates = await db
-      .select({
-        id: candidates.id,
-        electionId: candidates.electionId,
-        candidateNumber: candidates.candidateNumber,
-        name: candidates.name,
-        classOrUnit: candidates.classOrUnit,
-        motto: candidates.motto,
-        vision: candidates.vision,
-        missions: candidates.missions,
-        programs: candidates.programs,
-        supporters: candidates.supporters,
-        photoUrl: candidates.photoUrl,
-        themeColor: candidates.themeColor,
-        isActive: candidates.isActive,
-      })
-      .from(candidates)
-      .where(
-        and(
-          eq(candidates.electionId, activeElection.id),
-          eq(candidates.isActive, true)
-        )
-      )
-      .orderBy(asc(candidates.candidateNumber));
+    const activeCandidates = rawCandidates.filter(
+      (c) => c.electionId === activeElection.id
+    );
 
     const now = new Date();
     const withinSchedule =

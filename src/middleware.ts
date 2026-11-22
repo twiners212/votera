@@ -122,6 +122,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/api/admin/:path*",
+    "/vote",
     "/vote/:path*",
     "/api/voter/vote",
     "/api/voter/logout",

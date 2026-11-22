@@ -1,5 +1,10 @@
-import Papa from "papaparse";
-import * as XLSX from "xlsx";
+import type * as XLSX from "xlsx";
+import {
+  hasCsvFormulaPrefix,
+  escapeSpreadsheetCell,
+} from "./csv-sanitizer";
+
+export { hasCsvFormulaPrefix, escapeSpreadsheetCell };
 
 export interface ImportVoterRowInput {
   voterIdentity: string;
@@ -23,38 +28,6 @@ export interface ParseDptResult {
 
 export const MAX_IMPORT_ROWS = 5000;
 export const BATCH_CHUNK_SIZE = 500;
-
-/**
- * Check if a cell string starts with spreadsheet formula triggers (=, +, -, @, \t, \r).
- * Handles leading whitespace and control characters (CWE-1236 protection).
- */
-export function hasCsvFormulaPrefix(val: unknown): boolean {
-  if (typeof val !== "string") {
-    return false;
-  }
-  // Check leading control characters and symbols before trimming
-  if (/^[=+\-@\t\r]/.test(val)) {
-    return true;
-  }
-  // Check leading symbols after trimming leading spaces
-  const trimmed = val.trim();
-  return /^[=+\-@]/.test(trimmed);
-}
-
-/**
- * Escape formula injection in spreadsheet export by prepending single apostrophe (')
- * if the string starts with formula triggers.
- */
-export function escapeSpreadsheetCell(val: unknown): string {
-  if (val === null || val === undefined) {
-    return "";
-  }
-  const str = String(val);
-  if (hasCsvFormulaPrefix(str)) {
-    return `'${str}`;
-  }
-  return str;
-}
 
 /**
  * Normalize column header string for case-insensitive and symbol-agnostic fuzzy matching.
@@ -323,6 +296,7 @@ export async function parseDptBuffer(
       text = new TextDecoder("utf-8").decode(buffer);
     }
 
+    const Papa = (await import("papaparse")).default;
     const result = Papa.parse<Record<string, unknown>>(text, {
       header: true,
       skipEmptyLines: true,
@@ -335,6 +309,7 @@ export async function parseDptBuffer(
 
     rawRecords = result.data;
   } else {
+    const XLSX = await import("xlsx");
     let workbook: XLSX.WorkBook;
     if (typeof buffer === "string") {
       workbook = XLSX.read(buffer, { type: "binary" });

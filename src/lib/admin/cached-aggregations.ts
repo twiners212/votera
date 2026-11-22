@@ -1,4 +1,4 @@
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import { and, desc, eq, sql } from "drizzle-orm";
 import {
   auditLogs,
@@ -411,10 +411,25 @@ export function revalidateElectionCaches(electionId?: string): void {
   try {
     revalidateTag("election-dashboard");
     revalidateTag("election-results");
+    revalidateTag("public-showcase");
+    revalidateTag("candidates");
+    revalidateTag("election-settings");
+    revalidateTag("election-active");
+    revalidateTag("elections");
     if (electionId) {
       revalidateTag(`election-dashboard:${electionId}`);
       revalidateTag(`election-results:${electionId}`);
+      revalidateTag(`public-showcase:${electionId}`);
+      revalidateTag(`candidates:${electionId}`);
+      revalidateTag(`election-settings:${electionId}`);
+      revalidateTag(electionId);
     }
+    revalidatePath("/");
+    revalidatePath("/candidates");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/candidates");
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/results");
   } catch {
     // In Vitest or non-Next.js runtime, revalidateTag is safely caught
   }

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/admin-auth";
@@ -35,55 +36,57 @@ function isAdminRole(value: unknown): value is AdminRole {
   return value === "super_admin" || value === "committee";
 }
 
-export async function getAdminSession(): Promise<AdminSessionResult | null> {
-  try {
-    const requestHeaders = await headers();
-    const session = await auth.api.getSession({
-      headers: requestHeaders,
-      query: {
-        disableCookieCache: true,
-      },
-    });
+export const getAdminSession = cache(
+  async (): Promise<AdminSessionResult | null> => {
+    try {
+      const requestHeaders = await headers();
+      const session = await auth.api.getSession({
+        headers: requestHeaders,
+        query: {
+          disableCookieCache: true,
+        },
+      });
 
-    if (!session || !session.user) {
+      if (!session || !session.user) {
+        return null;
+      }
+
+      const rawUser = session.user as {
+        id: string;
+        name: string;
+        email: string;
+        username?: string | null;
+        role?: unknown;
+        banned?: boolean | null;
+      };
+
+      if (rawUser.banned) {
+        return null;
+      }
+
+      if (!isAdminRole(rawUser.role)) {
+        return null;
+      }
+
+      return {
+        user: {
+          id: rawUser.id,
+          name: rawUser.name,
+          email: rawUser.email,
+          username: rawUser.username ?? null,
+          role: rawUser.role,
+        },
+        session: {
+          id: session.session.id,
+          userId: session.session.userId,
+          expiresAt: new Date(session.session.expiresAt),
+        },
+      };
+    } catch {
       return null;
     }
-
-    const rawUser = session.user as {
-      id: string;
-      name: string;
-      email: string;
-      username?: string | null;
-      role?: unknown;
-      banned?: boolean | null;
-    };
-
-    if (rawUser.banned) {
-      return null;
-    }
-
-    if (!isAdminRole(rawUser.role)) {
-      return null;
-    }
-
-    return {
-      user: {
-        id: rawUser.id,
-        name: rawUser.name,
-        email: rawUser.email,
-        username: rawUser.username ?? null,
-        role: rawUser.role,
-      },
-      session: {
-        id: session.session.id,
-        userId: session.session.userId,
-        expiresAt: new Date(session.session.expiresAt),
-      },
-    };
-  } catch {
-    return null;
   }
-}
+);
 
 export async function requireAdminSession(
   allowedRoles?: AdminRole[]

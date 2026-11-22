@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import {
   AlertCircle,
   Clock,
@@ -11,16 +12,26 @@ import {
 import { toast } from "sonner";
 import { CandidateLiveResultCard } from "@/components/admin/candidate-live-result-card";
 import { KpiStatCard } from "@/components/admin/kpi-stat-card";
-import { ResultsComparisonChart } from "@/components/admin/results-comparison-chart";
 import { EmptyState } from "@/components/shared/empty-state";
 import { StatusPill } from "@/components/shared/status-pill";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useElectionResults } from "@/hooks/use-election-results";
-import { exportResultsWorkbookFile } from "@/lib/reports/export-excel";
-import { exportBeritaAcaraPdfFile } from "@/lib/reports/export-pdf";
 import { cn, formatDateWIB, formatPercentage } from "@/lib/utils";
 import type { AuditLogDTO, ElectionStatus } from "@/types/votera";
+
+const ResultsComparisonChart = dynamic(
+  () =>
+    import("@/components/admin/results-comparison-chart").then(
+      (m) => m.ResultsComparisonChart
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 animate-pulse rounded-[12px] bg-slate-100" />
+    ),
+  }
+);
 
 const ELECTION_STATUS_LABELS: Record<ElectionStatus, string> = {
   open: "Sedang berlangsung",
@@ -129,6 +140,9 @@ export function ResultsLiveView({
       } catch {
         // Fallback gracefully without logs if network issue occurs
       }
+      const { exportResultsWorkbookFile } = await import(
+        "@/lib/reports/export-excel"
+      );
       exportResultsWorkbookFile(data, auditLogs);
       toast.success("File Excel hasil pemilihan berhasil diunduh.");
     } catch (err) {
@@ -144,6 +158,9 @@ export function ResultsLiveView({
     if (!data || isExportingPdf) return;
     setIsExportingPdf(true);
     try {
+      const { exportBeritaAcaraPdfFile } = await import(
+        "@/lib/reports/export-pdf"
+      );
       exportBeritaAcaraPdfFile(data);
       toast.success("Berita Acara PDF berhasil diunduh.");
     } catch (err) {

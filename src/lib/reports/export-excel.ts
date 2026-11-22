@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import type { ElectionResultsDTO, AuditLogDTO, ElectionStatus } from "@/types/votera";
 import { formatDateWIB } from "@/lib/utils";
-import { escapeSpreadsheetCell } from "@/lib/importers/dpt-parser";
+import { escapeSpreadsheetCell } from "@/lib/importers/csv-sanitizer";
 
 export interface ExportExcelOptions {
   filename?: string;

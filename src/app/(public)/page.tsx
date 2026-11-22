@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { and, asc, desc, eq } from "drizzle-orm";
 import { ArrowRight } from "lucide-react";
-import { db, candidates, electionSettings, elections } from "@/db";
 import { CurvedRedFooter } from "@/components/shared/curved-red-footer";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CandidateShowcaseGrid } from "@/components/voter/candidate-showcase-grid";
 import { LandingHero } from "@/components/voter/landing-hero";
 import { PublicNavbar } from "@/components/voter/public-navbar";
-import type { CandidateDTO, ElectionStatus } from "@/types/votera";
+import { getPublicShowcaseDataCached } from "@/lib/public/showcase-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -18,107 +16,8 @@ export const metadata: Metadata = {
     "Portal resmi pemilihan online. Kenali visi, misi, dan program kerja setiap kandidat sebelum memberikan suara.",
 };
 
-interface PublicShowcaseData {
-  shortName: string;
-  title: string;
-  organizationName: string;
-  description: string | null;
-  status: ElectionStatus;
-  logoUrl: string;
-  heroBannerUrl: string;
-  candidates: CandidateDTO[];
-}
-
-const DEFAULT_SHOWCASE_DATA: PublicShowcaseData = {
-  shortName: "PILKETOS 2026",
-  title: "Pemilihan Ketua OSIS 2026",
-  organizationName: "SMA Bojong Gede",
-  description:
-    "Kenali calon ketua sebelum menentukan pilihan. Suara kamu dijaga kerahasiaannya dan hanya bisa digunakan satu kali.",
-  status: "draft",
-  logoUrl: "/images/logo-default.png",
-  heroBannerUrl: "/images/hero-flag-ballot.jpg",
-  candidates: [],
-};
-
-async function getPublicShowcaseData(): Promise<PublicShowcaseData> {
-  try {
-    const [election] = await db
-      .select({
-        id: elections.id,
-        shortName: elections.shortName,
-        title: elections.title,
-        organizationName: elections.organizationName,
-        description: elections.description,
-        status: elections.status,
-      })
-      .from(elections)
-      .where(eq(elections.isActive, true))
-      .orderBy(desc(elections.createdAt))
-      .limit(1);
-
-    if (!election) {
-      return DEFAULT_SHOWCASE_DATA;
-    }
-
-    const [[settings], activeCandidates] = await Promise.all([
-      db
-        .select({
-          logoUrl: electionSettings.logoUrl,
-          heroBannerUrl: electionSettings.heroBannerUrl,
-        })
-        .from(electionSettings)
-        .where(eq(electionSettings.electionId, election.id))
-        .limit(1),
-      db
-        .select({
-          id: candidates.id,
-          electionId: candidates.electionId,
-          candidateNumber: candidates.candidateNumber,
-          name: candidates.name,
-          classOrUnit: candidates.classOrUnit,
-          motto: candidates.motto,
-          vision: candidates.vision,
-          missions: candidates.missions,
-          programs: candidates.programs,
-          supporters: candidates.supporters,
-          photoUrl: candidates.photoUrl,
-          themeColor: candidates.themeColor,
-          isActive: candidates.isActive,
-        })
-        .from(candidates)
-        .where(
-          and(
-            eq(candidates.electionId, election.id),
-            eq(candidates.isActive, true)
-          )
-        )
-        .orderBy(asc(candidates.candidateNumber)),
-    ]);
-
-    return {
-      shortName: election.shortName,
-      title: election.title,
-      organizationName: election.organizationName,
-      description: election.description,
-      status: election.status,
-      logoUrl: settings?.logoUrl?.trim() || "/images/logo-default.png",
-      heroBannerUrl:
-        settings?.heroBannerUrl?.trim() || "/images/hero-flag-ballot.jpg",
-      candidates: activeCandidates.map((item) => ({
-        ...item,
-        missions: Array.isArray(item.missions) ? item.missions : [],
-        programs: Array.isArray(item.programs) ? item.programs : [],
-        supporters: Array.isArray(item.supporters) ? item.supporters : [],
-      })),
-    };
-  } catch {
-    return DEFAULT_SHOWCASE_DATA;
-  }
-}
-
 export default async function HomePage() {
-  const data = await getPublicShowcaseData();
+  const data = await getPublicShowcaseDataCached();
 
   return (
     <>

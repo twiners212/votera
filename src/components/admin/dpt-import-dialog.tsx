@@ -10,9 +10,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import Papa from "papaparse";
 import { toast } from "sonner";
-import * as XLSX from "xlsx";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -157,7 +155,7 @@ export function DptImportDialog({
     }
   }
 
-  function handleDownloadCsvTemplate() {
+  async function handleDownloadCsvTemplate() {
     const sampleRows = [
       {
         [idLabel]: "2324101",
@@ -174,6 +172,7 @@ export function DptImportDialog({
         [majorLabel]: "IPS",
       },
     ];
+    const Papa = (await import("papaparse")).default;
     const csv = Papa.unparse(sampleRows);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -186,7 +185,7 @@ export function DptImportDialog({
     URL.revokeObjectURL(url);
   }
 
-  function handleDownloadXlsxTemplate() {
+  async function handleDownloadXlsxTemplate() {
     const sampleRows = [
       {
         [idLabel]: "2324101",
@@ -203,6 +202,7 @@ export function DptImportDialog({
         [majorLabel]: "IPS",
       },
     ];
+    const XLSX = await import("xlsx");
     const worksheet = XLSX.utils.json_to_sheet(sampleRows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Template DPT");
